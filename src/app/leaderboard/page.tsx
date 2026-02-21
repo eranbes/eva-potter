@@ -16,11 +16,19 @@ interface LeaderboardEntry {
   isCurrentUser: boolean;
 }
 
+interface HouseStanding {
+  house: string;
+  totalPoints: number;
+  memberCount: number;
+}
+
 export default function LeaderboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
   const { t, language } = useTranslation();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [houseStandings, setHouseStandings] = useState<HouseStanding[]>([]);
+  const [activeTab, setActiveTab] = useState<'players' | 'houses'>('players');
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
   const [error, setError] = useState('');
 
@@ -40,6 +48,7 @@ export default function LeaderboardPage() {
 
         const data = await response.json();
         setLeaderboard(data.leaderboard);
+        setHouseStandings(data.houseStandings || []);
       } catch {
         setError(t('leaderboard.error'));
       } finally {
@@ -131,6 +140,32 @@ export default function LeaderboardPage() {
           </p>
         </motion.div>
 
+        {/* Tabs */}
+        {!loadingLeaderboard && !error && (
+          <div className="flex justify-center gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('players')}
+              className={`px-4 py-2 rounded-lg font-[family-name:var(--font-cinzel)] text-sm transition-colors ${
+                activeTab === 'players'
+                  ? 'bg-amber-500/30 text-amber-100 border border-amber-400/40'
+                  : 'text-amber-200/50 hover:text-amber-200/80'
+              }`}
+            >
+              {t('leaderboard.playersTab')}
+            </button>
+            <button
+              onClick={() => setActiveTab('houses')}
+              className={`px-4 py-2 rounded-lg font-[family-name:var(--font-cinzel)] text-sm transition-colors ${
+                activeTab === 'houses'
+                  ? 'bg-amber-500/30 text-amber-100 border border-amber-400/40'
+                  : 'text-amber-200/50 hover:text-amber-200/80'
+              }`}
+            >
+              {t('leaderboard.housesTab')}
+            </button>
+          </div>
+        )}
+
         {/* Loading state */}
         {loadingLeaderboard && (
           <div className="flex flex-col items-center justify-center py-20">
@@ -162,8 +197,76 @@ export default function LeaderboardPage() {
           </motion.div>
         )}
 
+        {/* House standings */}
+        {!loadingLeaderboard && !error && activeTab === 'houses' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <ParchmentCard>
+              {houseStandings.length === 0 ? (
+                <p className="text-slate-500 text-center py-8">{t('leaderboard.noHouses')}</p>
+              ) : (
+                <div className="divide-y divide-amber-200/40">
+                  {houseStandings.map((standing, index) => {
+                    const houseColorMap: Record<string, string> = {
+                      gryffindor: 'bg-red-700/20 border-red-500/30',
+                      slytherin: 'bg-emerald-800/20 border-emerald-500/30',
+                      ravenclaw: 'bg-blue-800/20 border-blue-500/30',
+                      hufflepuff: 'bg-yellow-600/20 border-yellow-500/30',
+                    };
+                    const houseEmoji: Record<string, string> = {
+                      gryffindor: '\u{1F981}',
+                      slytherin: '\u{1F40D}',
+                      ravenclaw: '\u{1F985}',
+                      hufflepuff: '\u{1F9A1}',
+                    };
+                    const colors = houseColorMap[standing.house] || '';
+                    const emoji = houseEmoji[standing.house] || '';
+                    const isUserHouse = user?.house === standing.house;
+
+                    return (
+                      <motion.div
+                        key={standing.house}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                        className={`flex items-center gap-3 py-4 px-3 rounded-lg ${
+                          isUserHouse ? `${colors} border` : ''
+                        }`}
+                      >
+                        <span className="text-2xl w-10 text-center">{emoji}</span>
+                        <span className="flex-1 font-bold text-base text-slate-700 font-[family-name:var(--font-cinzel)]">
+                          {t(`sorting.${standing.house}`)}
+                          {isUserHouse && (
+                            <span className="text-amber-600 text-sm ml-2">{t('leaderboard.you')}</span>
+                          )}
+                        </span>
+                        <div className="text-right">
+                          <div className="flex items-center gap-1.5">
+                            <svg className="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="12" cy="12" r="10" />
+                            </svg>
+                            <span className="font-bold text-sm text-slate-600">
+                              {standing.totalPoints}
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-400">
+                            {standing.memberCount} {t('leaderboard.players')}
+                          </span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </ParchmentCard>
+          </motion.div>
+        )}
+
         {/* Leaderboard content */}
-        {!loadingLeaderboard && !error && leaderboard.length > 0 && (
+        {!loadingLeaderboard && !error && activeTab === 'players' && leaderboard.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

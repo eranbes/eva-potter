@@ -4,6 +4,7 @@ import { db, schema } from '@/db';
 import { eq, and } from 'drizzle-orm';
 import { questionsFr } from '@/lib/i18n/questions-fr';
 import { booksFr } from '@/lib/i18n/books-fr';
+import { checkAchievements } from '@/lib/achievements/checker';
 
 const COOKIE_NAME = 'eva_potter_user_id';
 
@@ -274,6 +275,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check for new achievements
+    const newAchievements = await checkAchievements(userId, db);
+
     return NextResponse.json({
       correct: isCorrect,
       correctOption: question.correctOption,
@@ -282,6 +286,7 @@ export async function POST(request: NextRequest) {
       totalPoints: updatedUser.totalPoints,
       newUnlocks,
       quizCompleted,
+      newAchievements,
     });
   } catch (error) {
     console.error('Error submitting answer:', error);

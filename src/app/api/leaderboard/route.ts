@@ -68,7 +68,19 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json({ leaderboard });
+    // House standings: sum of totalPoints grouped by house
+    const houseStandings = await db
+      .select({
+        house: schema.users.house,
+        totalPoints: sql<number>`sum(${schema.users.totalPoints})`,
+        memberCount: sql<number>`count(*)`,
+      })
+      .from(schema.users)
+      .where(sql`${schema.users.house} IS NOT NULL`)
+      .groupBy(schema.users.house)
+      .orderBy(desc(sql`sum(${schema.users.totalPoints})`));
+
+    return NextResponse.json({ leaderboard, houseStandings });
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return NextResponse.json(

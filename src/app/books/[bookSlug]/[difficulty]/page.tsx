@@ -15,6 +15,9 @@ import SparkleEffect from '@/components/ui/SparkleEffect';
 import MagicalButton from '@/components/ui/MagicalButton';
 import UnlockCelebration from '@/components/bookshelf/UnlockCelebration';
 import GobletOfFortune from '@/components/ui/GobletOfFortune';
+import AchievementPopup from '@/components/achievements/AchievementPopup';
+import { achievements as achievementDefs } from '@/lib/achievements/definitions';
+import type { AchievementDef } from '@/lib/achievements/definitions';
 
 interface Question {
   id: number;
@@ -36,6 +39,7 @@ interface AnswerResult {
   totalPoints: number;
   newUnlocks: Array<{ bookId: number; title: string }>;
   quizCompleted: boolean;
+  newAchievements?: string[];
 }
 
 interface QuizAnswer {
@@ -207,6 +211,7 @@ export default function QuizPlayPage({
   const [showGoblet, setShowGoblet] = useState(false);
   const [pendingNext, setPendingNext] = useState<(() => void) | null>(null);
   const [bookId, setBookId] = useState<number | null>(null);
+  const [popupAchievements, setPopupAchievements] = useState<AchievementDef[]>([]);
   const [bookTitle, setBookTitle] = useState('');
   const [error, setError] = useState('');
 
@@ -336,6 +341,16 @@ export default function QuizPlayPage({
     if (result.newUnlocks.length > 0) {
       setNewUnlocks(result.newUnlocks);
       setTimeout(() => setShowUnlockCelebration(true), 800);
+    }
+
+    // Show achievement popup if new achievements were unlocked
+    if (result.newAchievements && result.newAchievements.length > 0) {
+      const defs = result.newAchievements
+        .map((id) => achievementDefs.find((a) => a.id === id))
+        .filter((a): a is AchievementDef => a !== undefined);
+      if (defs.length > 0) {
+        setPopupAchievements(defs);
+      }
     }
 
     // Fire-and-forget so the result is returned to ActiveQuestion immediately
@@ -472,6 +487,13 @@ export default function QuizPlayPage({
               setPendingNext(null);
             }
           }}
+        />
+      )}
+
+      {popupAchievements.length > 0 && (
+        <AchievementPopup
+          achievements={popupAchievements}
+          onDismiss={() => setPopupAchievements([])}
         />
       )}
 

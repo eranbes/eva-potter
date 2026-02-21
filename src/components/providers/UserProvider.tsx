@@ -13,6 +13,8 @@ interface User {
   id: string;
   firstName: string;
   totalPoints: number;
+  house: string | null;
+  patronus: string | null;
 }
 
 interface UserContextValue {
@@ -55,6 +57,8 @@ export function UserProvider({ children }: UserProviderProps) {
           id: data.user.id,
           firstName: data.user.firstName,
           totalPoints: data.user.totalPoints,
+          house: data.user.house ?? null,
+          patronus: data.user.patronus ?? null,
         });
       } else {
         setUserState(null);

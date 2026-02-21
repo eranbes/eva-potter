@@ -11,6 +11,9 @@ import WordleResult from '@/components/wordle/WordleResult';
 import { getRandomWord, getWord, type WordEntry } from '@/lib/wordle/words';
 import { evaluateGuess, calculatePoints, buildKeyboardState, type GuessResult } from '@/lib/wordle/engine';
 import GobletOfFortune from '@/components/ui/GobletOfFortune';
+import AchievementPopup from '@/components/achievements/AchievementPopup';
+import { achievements as achievementDefs } from '@/lib/achievements/definitions';
+import type { AchievementDef } from '@/lib/achievements/definitions';
 
 const MAX_GUESSES = 6;
 
@@ -27,6 +30,7 @@ export default function WordlePage() {
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showGoblet, setShowGoblet] = useState(false);
+  const [popupAchievements, setPopupAchievements] = useState<AchievementDef[]>([]);
 
   // Pick a random word on mount
   useEffect(() => {
@@ -96,7 +100,7 @@ export default function WordlePage() {
       // Record result on the server if user is logged in
       if (user) {
         try {
-          await fetch('/api/wordle/complete', {
+          const res = await fetch('/api/wordle/complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -105,6 +109,15 @@ export default function WordlePage() {
               guessesUsed: updatedGuesses.length,
             }),
           });
+          const data = await res.json();
+          if (data.newAchievements && data.newAchievements.length > 0) {
+            const defs = data.newAchievements
+              .map((id: string) => achievementDefs.find((a) => a.id === id))
+              .filter((a: AchievementDef | undefined): a is AchievementDef => a !== undefined);
+            if (defs.length > 0) {
+              setPopupAchievements(defs);
+            }
+          }
           await refreshUser();
         } catch {
           // Silently fail — points will sync on next page load
@@ -219,6 +232,14 @@ export default function WordlePage() {
             guessesUsed={guesses.length}
             pointsAwarded={pointsAwarded}
             onPlayAgain={handlePlayAgain}
+          />
+        )}
+
+        {/* Achievement popup */}
+        {popupAchievements.length > 0 && (
+          <AchievementPopup
+            achievements={popupAchievements}
+            onDismiss={() => setPopupAchievements([])}
           />
         )}
 

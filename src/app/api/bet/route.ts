@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { db, schema } from '@/db';
 import { eq, sql } from 'drizzle-orm';
+import { checkAchievements } from '@/lib/achievements/checker';
 
 const COOKIE_NAME = 'eva_potter_user_id';
 
@@ -58,11 +59,15 @@ export async function POST(request: NextRequest) {
       .set({ totalPoints: newTotal, updatedAt: new Date().toISOString() })
       .where(eq(schema.users.id, userId));
 
+    // Check for new achievements
+    const newAchievements = won ? await checkAchievements(userId, db) : [];
+
     return NextResponse.json({
       won,
       winningPosition,
       pointsChange,
       newTotal,
+      newAchievements,
     });
   } catch (error) {
     console.error('Error processing bet:', error);

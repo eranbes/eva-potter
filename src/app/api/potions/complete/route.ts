@@ -6,14 +6,13 @@ import { checkAchievements } from '@/lib/achievements/checker';
 
 const COOKIE_NAME = 'eva_potter_user_id';
 
-const POINTS_BY_GUESSES: Record<number, number> = {
-  1: 60,
-  2: 50,
-  3: 40,
-  4: 30,
-  5: 20,
-  6: 10,
-};
+function calculatePoints(timeSeconds: number): number {
+  if (timeSeconds < 30) return 80;
+  if (timeSeconds < 60) return 60;
+  if (timeSeconds < 90) return 40;
+  if (timeSeconds < 120) return 20;
+  return 10;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,41 +39,24 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { word, won, guessesUsed } = body;
+    const { timeSeconds } = body;
 
-    if (!word || typeof word !== 'string') {
+    if (typeof timeSeconds !== 'number' || timeSeconds < 0) {
       return NextResponse.json(
-        { error: 'word is required and must be a string' },
+        { error: 'timeSeconds is required and must be a non-negative number' },
         { status: 400 }
       );
     }
 
-    if (typeof won !== 'boolean') {
-      return NextResponse.json(
-        { error: 'won is required and must be a boolean' },
-        { status: 400 }
-      );
-    }
+    const pointsAwarded = calculatePoints(timeSeconds);
 
-    if (typeof guessesUsed !== 'number' || guessesUsed < 1 || guessesUsed > 6) {
-      return NextResponse.json(
-        { error: 'guessesUsed is required and must be a number between 1 and 6' },
-        { status: 400 }
-      );
-    }
-
-    const pointsAwarded = won ? (POINTS_BY_GUESSES[guessesUsed] ?? 0) : 0;
-
-    await db.insert(schema.wordleResults).values({
+    await db.insert(schema.potionsResults).values({
       userId,
-      word,
-      won,
-      guessesUsed,
+      timeSeconds: Math.round(timeSeconds),
       pointsAwarded,
       playedAt: new Date().toISOString(),
     });
 
-    // Update user totalPoints
     await db
       .update(schema.users)
       .set({
@@ -83,35 +65,22 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(schema.users.id, userId));
 
-    // Re-fetch updated user to get new totalPoints
     const [updatedUser] = await db
       .select()
       .from(schema.users)
       .where(eq(schema.users.id, userId));
 
-    // Check for newly unlocked books
-    const allBooks = await db.select().from(schema.books);
-    const newUnlocks = allBooks
-      .filter(
-        (book) =>
-          book.pointsToUnlock > user.totalPoints &&
-          book.pointsToUnlock <= updatedUser.totalPoints
-      )
-      .map((book) => ({ bookId: book.id, title: book.title }));
-
-    // Check for new achievements
     const newAchievements = await checkAchievements(userId, db);
 
     return NextResponse.json({
       pointsAwarded,
       totalPoints: updatedUser.totalPoints,
-      newUnlocks,
       newAchievements,
     });
   } catch (error) {
-    console.error('Error completing wordle:', error);
+    console.error('Error completing potions:', error);
     return NextResponse.json(
-      { error: 'Failed to record wordle result' },
+      { error: 'Failed to record potions result' },
       { status: 500 }
     );
   }

@@ -8,7 +8,10 @@ import { useUser } from '@/components/providers/UserProvider';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 import Header from '@/components/layout/Header';
 import ParchmentCard from '@/components/ui/ParchmentCard';
+import MagicalButton from '@/components/ui/MagicalButton';
 import ProgressBar from '@/components/ui/ProgressBar';
+import PatronusReveal from '@/components/patronus/PatronusReveal';
+import { getPatronusById, type PatronusAnimal } from '@/lib/patronus/animals';
 
 interface DifficultyProgress {
   questionsAnswered: number;
@@ -44,11 +47,13 @@ interface ProgressResponse {
 
 export default function ProgressPage() {
   const router = useRouter();
-  const { user, loading: userLoading } = useUser();
+  const { user, loading: userLoading, refreshUser } = useUser();
   const { t, language } = useTranslation();
   const [progress, setProgress] = useState<ProgressResponse | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [error, setError] = useState('');
+  const [patronusRevealAnimal, setPatronusRevealAnimal] = useState<PatronusAnimal | null>(null);
+  const [patronusLoading, setPatronusLoading] = useState(false);
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -270,6 +275,83 @@ export default function ProgressPage() {
                 <p className="text-amber-200/50 text-sm mt-1">{t('progress.correct')}</p>
               </div>
             </motion.div>
+
+            {/* Patronus Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-10"
+            >
+              <ParchmentCard>
+                <h3 className="font-[family-name:var(--font-cinzel)] text-lg font-bold text-slate-800 mb-3">
+                  {t('patronus.title')}
+                </h3>
+
+                {user.patronus ? (() => {
+                  const animal = getPatronusById(user.patronus!);
+                  if (!animal) return null;
+                  const name = language === 'fr' ? animal.nameFr : animal.nameEn;
+                  return (
+                    <div className="flex items-center gap-4">
+                      <span className="text-5xl">{animal.emoji}</span>
+                      <div>
+                        <p className="text-slate-700 font-bold text-lg">{name}</p>
+                        <p className="text-slate-500 text-sm">{t('patronus.revealed')}</p>
+                      </div>
+                    </div>
+                  );
+                })() : user.totalPoints >= 500 ? (
+                  <div className="text-center">
+                    <p className="text-slate-600 mb-3">{t('patronus.reveal')}</p>
+                    <MagicalButton
+                      onClick={async () => {
+                        if (patronusLoading) return;
+                        setPatronusLoading(true);
+                        try {
+                          const res = await fetch('/api/patronus', { method: 'POST' });
+                          const json = await res.json();
+                          if (res.ok && json.patronus) {
+                            setPatronusRevealAnimal(json.patronus);
+                            await refreshUser();
+                          }
+                        } catch {
+                          // silently fail
+                        } finally {
+                          setPatronusLoading(false);
+                        }
+                      }}
+                      disabled={patronusLoading}
+                      size="md"
+                    >
+                      {patronusLoading ? '...' : t('patronus.revealButton')}
+                    </MagicalButton>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-slate-600 mb-2">
+                      {t('patronus.locked', { points: '500' })}
+                    </p>
+                    <ProgressBar
+                      current={user.totalPoints}
+                      total={500}
+                      className="h-2"
+                    />
+                    <p className="text-slate-500 text-xs mt-1">
+                      {t('patronus.pointsNeeded', { current: user.totalPoints, needed: 500 })}
+                    </p>
+                  </div>
+                )}
+              </ParchmentCard>
+            </motion.div>
+
+            {/* Patronus Reveal Overlay */}
+            {patronusRevealAnimal && (
+              <PatronusReveal
+                animal={patronusRevealAnimal}
+                onClose={() => setPatronusRevealAnimal(null)}
+              />
+            )}
 
             {/* Hogwarts Express journey visualization */}
             <motion.h2

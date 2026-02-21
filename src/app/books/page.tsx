@@ -43,6 +43,10 @@ export default function BooksPage() {
     if (!userLoading && !user) {
       router.replace('/');
     }
+    // Redirect unsorted users to the Sorting Ceremony
+    if (!userLoading && user && !user.house) {
+      router.replace('/sorting');
+    }
   }, [user, userLoading, router]);
 
   useEffect(() => {

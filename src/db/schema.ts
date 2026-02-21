@@ -5,6 +5,8 @@ export const users = sqliteTable('users', {
   firstName: text('first_name').notNull(),
   pin: text('pin').notNull().default(''),
   totalPoints: integer('total_points').notNull().default(0),
+  house: text('house'),
+  patronus: text('patronus'),
   createdAt: text('created_at').notNull().default(''),
   updatedAt: text('updated_at').notNull().default(''),
 });
@@ -64,6 +66,39 @@ export const wordleResults = sqliteTable('wordle_results', {
   word: text('word').notNull(),
   won: integer('won', { mode: 'boolean' }).notNull(),
   guessesUsed: integer('guesses_used').notNull(),
+  pointsAwarded: integer('points_awarded').notNull().default(0),
+  playedAt: text('played_at').notNull(),
+});
+
+export const userAchievements = sqliteTable('user_achievements', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  achievementId: text('achievement_id').notNull(),
+  unlockedAt: text('unlocked_at').notNull(),
+});
+
+export const dailyCompletions = sqliteTable('daily_completions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  dateKey: text('date_key').notNull(),
+  challengeType: text('challenge_type', { enum: ['quiz', 'wordle'] }).notNull(),
+  pointsAwarded: integer('points_awarded').notNull().default(0),
+  completedAt: text('completed_at').notNull(),
+});
+
+export const potionsResults = sqliteTable('potions_results', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  timeSeconds: integer('time_seconds').notNull(),
+  pointsAwarded: integer('points_awarded').notNull().default(0),
+  playedAt: text('played_at').notNull(),
+});
+
+export const duelResults = sqliteTable('duel_results', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  roundsCorrect: integer('rounds_correct').notNull(),
+  totalRounds: integer('total_rounds').notNull().default(5),
   pointsAwarded: integer('points_awarded').notNull().default(0),
   playedAt: text('played_at').notNull(),
 });

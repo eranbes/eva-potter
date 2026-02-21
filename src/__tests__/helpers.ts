@@ -16,6 +16,8 @@ export function createTestDb() {
       first_name TEXT NOT NULL,
       pin TEXT NOT NULL DEFAULT '',
       total_points INTEGER NOT NULL DEFAULT 0,
+      house TEXT,
+      patronus TEXT,
       created_at TEXT NOT NULL DEFAULT '',
       updated_at TEXT NOT NULL DEFAULT ''
     );
@@ -69,6 +71,35 @@ export function createTestDb() {
       word TEXT NOT NULL,
       won INTEGER NOT NULL,
       guesses_used INTEGER NOT NULL,
+      points_awarded INTEGER NOT NULL DEFAULT 0,
+      played_at TEXT NOT NULL
+    );
+    CREATE TABLE user_achievements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      achievement_id TEXT NOT NULL,
+      unlocked_at TEXT NOT NULL
+    );
+    CREATE TABLE daily_completions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      date_key TEXT NOT NULL,
+      challenge_type TEXT NOT NULL,
+      points_awarded INTEGER NOT NULL DEFAULT 0,
+      completed_at TEXT NOT NULL
+    );
+    CREATE TABLE potions_results (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      time_seconds INTEGER NOT NULL,
+      points_awarded INTEGER NOT NULL DEFAULT 0,
+      played_at TEXT NOT NULL
+    );
+    CREATE TABLE duel_results (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      rounds_correct INTEGER NOT NULL,
+      total_rounds INTEGER NOT NULL DEFAULT 5,
       points_awarded INTEGER NOT NULL DEFAULT 0,
       played_at TEXT NOT NULL
     );

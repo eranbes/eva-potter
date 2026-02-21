@@ -26,7 +26,7 @@ export default function WelcomePage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace('/books');
+      router.replace(user.house ? '/books' : '/sorting');
     }
   }, [user, loading, router]);
 
@@ -101,11 +101,18 @@ export default function WelcomePage() {
           id: data.user.id,
           firstName: data.user.firstName,
           totalPoints: data.user.totalPoints ?? 0,
+          house: data.user.house ?? null,
+          patronus: data.user.patronus ?? null,
         });
       }
 
       await new Promise((resolve) => setTimeout(resolve, 800));
-      router.push('/books');
+      // If user has no house yet, redirect to sorting ceremony
+      if (!data.user.house) {
+        router.push('/sorting');
+      } else {
+        router.push('/books');
+      }
     } catch {
       setError(t('welcome.submitError'));
       setIsSubmitting(false);
