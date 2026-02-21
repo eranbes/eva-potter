@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/components/providers/UserProvider';
 import { useTranslation } from '@/components/providers/LanguageProvider';
@@ -53,6 +53,7 @@ export default function DuelPage() {
   const [phase, setPhase] = useState<GamePhase>('playing');
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasSubmittedRef = useRef(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -95,8 +96,11 @@ export default function DuelPage() {
 
   // Submit results to API when game ends
   useEffect(() => {
-    if (phase !== 'results' || isSubmitting || !user) return;
+    if (phase !== 'results' || !user) return;
     if (results.length !== TOTAL_ROUNDS) return;
+    if (hasSubmittedRef.current) return;
+
+    hasSubmittedRef.current = true;
 
     const submitResults = async () => {
       setIsSubmitting(true);
@@ -121,7 +125,7 @@ export default function DuelPage() {
     };
 
     submitResults();
-  }, [phase, results, user, isSubmitting, refreshUser]);
+  }, [phase, results, user, refreshUser]);
 
   const handlePlayAgain = useCallback(() => {
     setSelectedSpells(pickRandomSpells(TOTAL_ROUNDS));
@@ -130,6 +134,7 @@ export default function DuelPage() {
     setPhase('playing');
     setLastResult(null);
     setIsSubmitting(false);
+    hasSubmittedRef.current = false;
   }, []);
 
   const totalPoints = results.reduce((sum, r) => sum + r.points, 0);
