@@ -14,6 +14,7 @@ import QuizProgressBar from '@/components/quiz/QuizProgressBar';
 import SparkleEffect from '@/components/ui/SparkleEffect';
 import MagicalButton from '@/components/ui/MagicalButton';
 import UnlockCelebration from '@/components/bookshelf/UnlockCelebration';
+import GobletOfFortune from '@/components/ui/GobletOfFortune';
 
 interface Question {
   id: number;
@@ -203,6 +204,8 @@ export default function QuizPlayPage({
   const [totalPointsEarned, setTotalPointsEarned] = useState(0);
   const [newUnlocks, setNewUnlocks] = useState<Array<{ bookId: number; title: string }>>([]);
   const [showUnlockCelebration, setShowUnlockCelebration] = useState(false);
+  const [showGoblet, setShowGoblet] = useState(false);
+  const [pendingNext, setPendingNext] = useState<(() => void) | null>(null);
   const [bookId, setBookId] = useState<number | null>(null);
   const [bookTitle, setBookTitle] = useState('');
   const [error, setError] = useState('');
@@ -340,8 +343,8 @@ export default function QuizPlayPage({
     return result;
   };
 
-  // Called by ActiveQuestion when user clicks Next / See Results
-  const handleNext = () => {
+  // The actual advance logic (called directly or after goblet dismissal)
+  const advanceToNext = useCallback(() => {
     let idx = currentIndex + 1;
     while (idx < questions.length && questions[idx].alreadyAnswered) {
       idx++;
@@ -364,6 +367,21 @@ export default function QuizPlayPage({
     }
 
     setCurrentIndex(idx);
+  }, [currentIndex, questions, bookSlug, bookTitle, difficulty, bookId, router]);
+
+  // Called by ActiveQuestion when user clicks Next / See Results
+  const handleNext = () => {
+    // Check if this is the last question (going to results) — don't trigger goblet
+    const isLast = isLastQuestion();
+
+    // ~5% chance to show the Goblet of Fortune, only if not the last question and user has points
+    if (!isLast && user && user.totalPoints > 0 && Math.random() < 0.05) {
+      setPendingNext(() => advanceToNext);
+      setShowGoblet(true);
+      return;
+    }
+
+    advanceToNext();
   };
 
   // Is the current question the last unanswered one?
@@ -443,6 +461,18 @@ export default function QuizPlayPage({
 
       {showUnlockCelebration && newUnlocks.length > 0 && (
         <UnlockCelebration books={newUnlocks} onClose={() => setShowUnlockCelebration(false)} />
+      )}
+
+      {showGoblet && (
+        <GobletOfFortune
+          onDismiss={() => {
+            setShowGoblet(false);
+            if (pendingNext) {
+              pendingNext();
+              setPendingNext(null);
+            }
+          }}
+        />
       )}
 
       <main className="flex-1 px-4 sm:px-6 pb-12 max-w-2xl mx-auto w-full">

@@ -10,6 +10,7 @@ import WordleHint from '@/components/wordle/WordleHint';
 import WordleResult from '@/components/wordle/WordleResult';
 import { getRandomWord, getWord, type WordEntry } from '@/lib/wordle/words';
 import { evaluateGuess, calculatePoints, buildKeyboardState, type GuessResult } from '@/lib/wordle/engine';
+import GobletOfFortune from '@/components/ui/GobletOfFortune';
 
 const MAX_GUESSES = 6;
 
@@ -25,6 +26,7 @@ export default function WordlePage() {
   const [pointsAwarded, setPointsAwarded] = useState(0);
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showGoblet, setShowGoblet] = useState(false);
 
   // Pick a random word on mount
   useEffect(() => {
@@ -42,6 +44,15 @@ export default function WordlePage() {
     setShakeRow(null);
     setIsSubmitting(false);
   }, []);
+
+  // Play Again with ~5% chance for Goblet of Fortune
+  const handlePlayAgain = useCallback(() => {
+    if (user && user.totalPoints > 0 && Math.random() < 0.05) {
+      setShowGoblet(true);
+      return;
+    }
+    startNewGame();
+  }, [user, startNewGame]);
 
   // The active word depends on the language
   const activeWord = wordEntry ? getWord(wordEntry, language) : '';
@@ -207,7 +218,17 @@ export default function WordlePage() {
             word={activeWord}
             guessesUsed={guesses.length}
             pointsAwarded={pointsAwarded}
-            onPlayAgain={startNewGame}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
+
+        {/* Goblet of Fortune overlay */}
+        {showGoblet && (
+          <GobletOfFortune
+            onDismiss={() => {
+              setShowGoblet(false);
+              startNewGame();
+            }}
           />
         )}
       </main>

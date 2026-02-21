@@ -184,6 +184,20 @@ export const translations: Record<Language, TranslationDictionary> = {
 
     // Book card
     'bookCard.pointsToUnlock': '{points} points to unlock',
+
+    // Goblet of Fortune
+    'goblet.title': 'The Goblet of Fortune',
+    'goblet.subtitle': 'The magical flames flicker before you...',
+    'goblet.betPrompt': 'How many points do you dare to risk?',
+    'goblet.flamePrompt': 'Choose a flame!',
+    'goblet.allIn': 'All in!',
+    'goblet.skip': 'No thanks',
+    'goblet.continue': 'Continue',
+    'goblet.win': 'The flame burns gold! You won {points} points!',
+    'goblet.lose': 'The flame fades... You lost {points} points.',
+    'goblet.red': 'Red',
+    'goblet.blue': 'Blue',
+    'goblet.gold': 'Gold',
   },
 
   fr: {
@@ -367,5 +381,19 @@ export const translations: Record<Language, TranslationDictionary> = {
 
     // Book card
     'bookCard.pointsToUnlock': '{points} points pour d\u00e9bloquer',
+
+    // Goblet of Fortune
+    'goblet.title': 'La Coupe de Fortune',
+    'goblet.subtitle': 'Les flammes magiques vacillent devant toi...',
+    'goblet.betPrompt': 'Combien de points oses-tu risquer\u00a0?',
+    'goblet.flamePrompt': 'Choisis une flamme\u00a0!',
+    'goblet.allIn': 'Tout miser\u00a0!',
+    'goblet.skip': 'Non merci',
+    'goblet.continue': 'Continuer',
+    'goblet.win': 'La flamme brille dor\u00e9e\u00a0! Tu as gagn\u00e9 {points} points\u00a0!',
+    'goblet.lose': 'La flamme s\u2019\u00e9teint... Tu as perdu {points} points.',
+    'goblet.red': 'Rouge',
+    'goblet.blue': 'Bleue',
+    'goblet.gold': 'Dor\u00e9e',
   },
 };

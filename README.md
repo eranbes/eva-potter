@@ -14,6 +14,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 - **Bilingual** — Full English and French support (questions, UI, book descriptions)
 - **Name + PIN Login** — Kids pick a 4-digit PIN to save and resume their progress across sessions
 - **Progressive Unlocking** — Earn points to unlock the next book
+- **Goblet of Fortune** — Rare (~5%) luck-based mini-game between questions: bet points, pick a flame, win 3x or lose your bet
 - **Points System** — Quiz: 10/20/30/40 by difficulty; Wordle: 60→10 by guesses used
 - **Leaderboard** — Compare scores with other players
 - **Progress Tracking** — See your stats and journey on the Hogwarts Express
