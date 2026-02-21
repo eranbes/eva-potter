@@ -10,11 +10,16 @@ import LanguageToggle from '@/components/ui/LanguageToggle';
 import FloatingElement from '@/components/ui/FloatingElement';
 import SparkleEffect from '@/components/ui/SparkleEffect';
 
+type Step = 'name' | 'pin';
+
 export default function WelcomePage() {
   const router = useRouter();
   const { user, loading, setUser } = useUser();
   const { t } = useTranslation();
   const [firstName, setFirstName] = useState('');
+  const [pin, setPin] = useState('');
+  const [step, setStep] = useState<Step>('name');
+  const [isNewUser, setIsNewUser] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showSparkles, setShowSparkles] = useState(false);
@@ -25,12 +30,48 @@ export default function WelcomePage() {
     }
   }, [user, loading, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const trimmedName = firstName.trim();
     if (!trimmedName) {
       setError(t('welcome.nameError'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: trimmedName }),
+      });
+
+      const data = await response.json();
+
+      if (data.needsPin !== undefined) {
+        setIsNewUser(data.isNew);
+        setStep('pin');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed');
+      }
+    } catch {
+      setError(t('welcome.submitError'));
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!/^\d{4}$/.test(pin)) {
+      setError(t('welcome.pinFormatError'));
       return;
     }
 
@@ -42,18 +83,20 @@ export default function WelcomePage() {
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: trimmedName }),
+        body: JSON.stringify({ firstName: firstName.trim(), pin }),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create user');
-      }
 
       const data = await response.json();
 
+      if (!response.ok) {
+        setError(data.error || t('welcome.submitError'));
+        setIsSubmitting(false);
+        setShowSparkles(false);
+        return;
+      }
+
       if (data.user?.id) {
         localStorage.setItem('eva_potter_user_id', data.user.id);
-        // Update the context so other pages know the user exists
         setUser({
           id: data.user.id,
           firstName: data.user.firstName,
@@ -61,7 +104,6 @@ export default function WelcomePage() {
         });
       }
 
-      // Small delay to let the sparkle animation play
       await new Promise((resolve) => setTimeout(resolve, 800));
       router.push('/books');
     } catch {
@@ -69,6 +111,12 @@ export default function WelcomePage() {
       setIsSubmitting(false);
       setShowSparkles(false);
     }
+  };
+
+  const handleBack = () => {
+    setStep('name');
+    setPin('');
+    setError('');
   };
 
   if (loading) {
@@ -158,66 +206,144 @@ export default function WelcomePage() {
           className="w-48 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent mb-12"
         />
 
-        {/* Name input form */}
+        {/* Form area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
           className="w-full max-w-sm flex flex-col items-center"
         >
-          <form
-            onSubmit={handleSubmit}
-            className="w-full flex flex-col items-center gap-6"
-          >
-            <div className="w-full">
-              <label
-                htmlFor="firstName"
-                className="block text-amber-200/70 text-lg mb-3 font-[family-name:var(--font-cinzel)]"
+          <AnimatePresence mode="wait">
+            {step === 'name' ? (
+              <motion.form
+                key="name-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                onSubmit={handleNameSubmit}
+                className="w-full flex flex-col items-center gap-6"
               >
-                {t('welcome.nameLabel')}
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                value={firstName}
-                onChange={(e) => {
-                  setFirstName(e.target.value);
-                  setError('');
-                }}
-                placeholder={t('welcome.namePlaceholder')}
-                className="magical-input w-full px-6 py-4 rounded-xl text-xl text-amber-50 font-[family-name:var(--font-lora)] text-center"
-                autoComplete="off"
-                autoFocus
-                disabled={isSubmitting}
-                maxLength={30}
-              />
-            </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-amber-200/70 text-lg mb-3 font-[family-name:var(--font-cinzel)]"
+                  >
+                    {t('welcome.nameLabel')}
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      setError('');
+                    }}
+                    placeholder={t('welcome.namePlaceholder')}
+                    className="magical-input w-full px-6 py-4 rounded-xl text-xl text-amber-50 font-[family-name:var(--font-lora)] text-center"
+                    autoComplete="off"
+                    autoFocus
+                    disabled={isSubmitting}
+                    maxLength={30}
+                  />
+                </div>
 
-            <AnimatePresence>
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="text-amber-400 text-base"
+                <AnimatePresence>
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-amber-400 text-base"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
+                <MagicalButton
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting || !firstName.trim()}
+                  className="font-[family-name:var(--font-cinzel)] text-lg tracking-wider"
                 >
-                  {error}
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            <div className="relative">
-              {showSparkles && <SparkleEffect />}
-              <MagicalButton
-                type="submit"
-                size="lg"
-                disabled={isSubmitting || !firstName.trim()}
-                className="font-[family-name:var(--font-cinzel)] text-lg tracking-wider"
+                  {isSubmitting ? t('welcome.submitting') : t('welcome.submit')}
+                </MagicalButton>
+              </motion.form>
+            ) : (
+              <motion.form
+                key="pin-step"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                onSubmit={handlePinSubmit}
+                className="w-full flex flex-col items-center gap-6"
               >
-                {isSubmitting ? t('welcome.submitting') : t('welcome.submit')}
-              </MagicalButton>
-            </div>
-          </form>
+                <div className="w-full">
+                  <label
+                    htmlFor="pin"
+                    className="block text-amber-200/70 text-lg mb-3 font-[family-name:var(--font-cinzel)]"
+                  >
+                    {isNewUser ? t('welcome.pinLabelNew') : t('welcome.pinLabelReturning')}
+                  </label>
+                  <input
+                    id="pin"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="\d{4}"
+                    value={pin}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      setPin(val);
+                      setError('');
+                    }}
+                    placeholder={t('welcome.pinPlaceholder')}
+                    className="magical-input w-full px-6 py-4 rounded-xl text-3xl text-amber-50 font-[family-name:var(--font-lora)] text-center tracking-[0.5em]"
+                    autoComplete="off"
+                    autoFocus
+                    disabled={isSubmitting}
+                    maxLength={4}
+                  />
+                </div>
+
+                <AnimatePresence>
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-amber-400 text-base"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
+                <div className="flex gap-4 items-center">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    disabled={isSubmitting}
+                    className="text-amber-200/60 hover:text-amber-200 transition-colors font-[family-name:var(--font-cinzel)]"
+                  >
+                    {t('welcome.back')}
+                  </button>
+                  <div className="relative">
+                    {showSparkles && <SparkleEffect />}
+                    <MagicalButton
+                      type="submit"
+                      size="lg"
+                      disabled={isSubmitting || pin.length !== 4}
+                      className="font-[family-name:var(--font-cinzel)] text-lg tracking-wider"
+                    >
+                      {isSubmitting ? t('welcome.submitting') : t('welcome.submit')}
+                    </MagicalButton>
+                  </div>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Bottom flavor text */}

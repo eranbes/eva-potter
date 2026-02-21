@@ -131,7 +131,9 @@ export default function ResultsPage({
       ? t('difficulty.firstYears')
       : difficulty === 'normal'
       ? t('difficulty.owls')
-      : t('difficulty.newts');
+      : difficulty === 'hard'
+      ? t('difficulty.newts')
+      : t('difficulty.orderOfThePhoenix');
 
   // Encouraging message based on performance
   const getMessage = () => {

@@ -41,7 +41,7 @@ export async function GET() {
       .from(schema.userProgress)
       .where(eq(schema.userProgress.userId, userId));
 
-    const difficulties = ['easy', 'normal', 'hard'] as const;
+    const difficulties = ['easy', 'normal', 'hard', 'expert'] as const;
 
     const bookProgress = allBooks.map((book) => {
       const difficulties_data: Record<string, {

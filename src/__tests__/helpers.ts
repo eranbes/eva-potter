@@ -14,6 +14,7 @@ export function createTestDb() {
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
       first_name TEXT NOT NULL,
+      pin TEXT NOT NULL DEFAULT '',
       total_points INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT '',
       updated_at TEXT NOT NULL DEFAULT ''
@@ -62,6 +63,15 @@ export function createTestDb() {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+    CREATE TABLE wordle_results (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      word TEXT NOT NULL,
+      won INTEGER NOT NULL,
+      guesses_used INTEGER NOT NULL,
+      points_awarded INTEGER NOT NULL DEFAULT 0,
+      played_at TEXT NOT NULL
+    );
   `);
 
   // Seed game settings
@@ -69,6 +79,7 @@ export function createTestDb() {
     INSERT INTO game_settings (key, value) VALUES ('points_easy', '10');
     INSERT INTO game_settings (key, value) VALUES ('points_normal', '20');
     INSERT INTO game_settings (key, value) VALUES ('points_hard', '30');
+    INSERT INTO game_settings (key, value) VALUES ('points_expert', '40');
     INSERT INTO game_settings (key, value) VALUES ('questions_per_level', '10');
   `);
 
@@ -94,6 +105,16 @@ export function createTestDb() {
     insertQ.run(1, 'normal', `Normal Q${i}?`, 'A', 'B', 'C', 'D', 'B', `Normal explanation ${i}`, i);
   }
 
+  // Seed 10 hard questions for book 1
+  for (let i = 1; i <= 10; i++) {
+    insertQ.run(1, 'hard', `Hard Q${i}?`, 'A', 'B', 'C', 'D', 'C', `Hard explanation ${i}`, i);
+  }
+
+  // Seed 10 expert questions for book 1
+  for (let i = 1; i <= 10; i++) {
+    insertQ.run(1, 'expert', `Expert Q${i}?`, 'A', 'B', 'C', 'D', 'D', `Expert explanation ${i}`, i);
+  }
+
   return drizzle(sqlite, { schema });
 }
 
@@ -108,9 +129,9 @@ export function logout() {
 }
 
 /** Seed a user directly in the database and set the auth cookie. */
-export function seedUser(db: ReturnType<typeof createTestDb>, id: string, firstName: string, totalPoints = 0) {
+export function seedUser(db: ReturnType<typeof createTestDb>, id: string, firstName: string, totalPoints = 0, pin = '') {
   const now = new Date().toISOString();
-  db.insert(schema.users).values({ id, firstName, totalPoints, createdAt: now, updatedAt: now }).run();
+  db.insert(schema.users).values({ id, firstName, pin, totalPoints, createdAt: now, updatedAt: now }).run();
   loginAs(id);
   return id;
 }

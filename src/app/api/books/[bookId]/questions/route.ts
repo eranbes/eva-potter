@@ -47,9 +47,9 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const difficulty = searchParams.get('difficulty');
 
-    if (!difficulty || !['easy', 'normal', 'hard'].includes(difficulty)) {
+    if (!difficulty || !['easy', 'normal', 'hard', 'expert'].includes(difficulty)) {
       return NextResponse.json(
-        { error: 'difficulty query parameter must be easy, normal, or hard' },
+        { error: 'difficulty query parameter must be easy, normal, hard, or expert' },
         { status: 400 }
       );
     }
@@ -74,6 +74,27 @@ export async function GET(
       );
     }
 
+    // Expert difficulty requires completing hard first
+    if (difficulty === 'expert') {
+      const [hardProgress] = await db
+        .select()
+        .from(schema.userProgress)
+        .where(
+          and(
+            eq(schema.userProgress.userId, userId),
+            eq(schema.userProgress.bookId, bookId),
+            eq(schema.userProgress.difficulty, 'hard')
+          )
+        );
+
+      if (!hardProgress || !hardProgress.completed) {
+        return NextResponse.json(
+          { error: 'You must complete the N.E.W.T.s (hard) difficulty first to unlock expert.' },
+          { status: 403 }
+        );
+      }
+    }
+
     // Fetch questions for this book/difficulty
     const questionRows = await db
       .select()
@@ -81,7 +102,7 @@ export async function GET(
       .where(
         and(
           eq(schema.questions.bookId, bookId),
-          eq(schema.questions.difficulty, difficulty as 'easy' | 'normal' | 'hard')
+          eq(schema.questions.difficulty, difficulty as 'easy' | 'normal' | 'hard' | 'expert')
         )
       )
       .orderBy(schema.questions.sortOrder)

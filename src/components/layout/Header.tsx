@@ -49,6 +49,22 @@ export default function Header({ className = '' }: HeaderProps) {
             </div>
             <LanguageToggle />
             <Link
+              href="/wordle"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500/10 hover:bg-yellow-500/25 transition-colors"
+              title="Wordle"
+            >
+              <svg
+                className="w-4 h-4 text-yellow-400"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <rect x="2" y="2" width="9" height="9" rx="1" />
+                <rect x="13" y="2" width="9" height="9" rx="1" />
+                <rect x="2" y="13" width="9" height="9" rx="1" />
+                <rect x="13" y="13" width="9" height="9" rx="1" />
+              </svg>
+            </Link>
+            <Link
               href="/leaderboard"
               className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500/10 hover:bg-yellow-500/25 transition-colors"
               title="Leaderboard"

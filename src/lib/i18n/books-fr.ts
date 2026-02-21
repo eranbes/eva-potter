@@ -7,7 +7,7 @@ export const booksFr: Record<string, { title: string; description: string }> = {
   'philosophers-stone': {
     title: "Harry Potter \u00e0 l'\u00e9cole des sorciers",
     description:
-      "Le gar\u00e7on qui a surv\u00e9cu d\u00e9couvre qu'il est un sorcier et commence son voyage magique \u00e0 l'\u00e9cole de Poudlard.",
+      "Le gar\u00e7on qui a surv\u00e9cu d\u00e9couvre qu'il est un sorcier et commence son aventure magique \u00e0 Poudlard.",
   },
   'chamber-of-secrets': {
     title: 'Harry Potter et la Chambre des secrets',
@@ -22,7 +22,7 @@ export const booksFr: Record<string, { title: string; description: string }> = {
   'goblet-of-fire': {
     title: 'Harry Potter et la Coupe de feu',
     description:
-      "Harry est myst\u00e9rieusement inscrit au dangereux Tournoi des Trois Sorciers et fait face \u00e0 des \u00e9preuves au-del\u00e0 de son \u00e2ge.",
+      "Harry est myst\u00e9rieusement inscrit au dangereux Tournoi des Trois Sorciers et doit affronter des \u00e9preuves bien trop dangereuses pour son \u00e2ge.",
   },
   'order-of-the-phoenix': {
     title: "Harry Potter et l'Ordre du Ph\u00e9nix",

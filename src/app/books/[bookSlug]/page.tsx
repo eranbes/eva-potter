@@ -30,11 +30,12 @@ interface Book {
     easy: BookProgress | null;
     normal: BookProgress | null;
     hard: BookProgress | null;
+    expert: BookProgress | null;
   };
 }
 
 interface DifficultyConfig {
-  key: 'easy' | 'normal' | 'hard';
+  key: 'easy' | 'normal' | 'hard' | 'expert';
   borderColor: string;
   bgAccent: string;
   textColor: string;
@@ -66,6 +67,14 @@ const difficulties: DifficultyConfig[] = [
     textColor: 'text-amber-800',
     iconColor: 'text-amber-600',
     icon: '\u2605\u2605\u2605',
+  },
+  {
+    key: 'expert',
+    borderColor: 'border-purple-500/50',
+    bgAccent: 'from-purple-50 via-violet-50 to-purple-50',
+    textColor: 'text-purple-800',
+    iconColor: 'text-purple-600',
+    icon: '\u2605\u2605\u2605\u2605',
   },
 ];
 
@@ -257,37 +266,51 @@ export default function BookDifficultyPage({
                 const questionsAnswered = progress?.questionsAnswered ?? 0;
                 const hasProgress = questionsAnswered > 0;
                 const isConfirming = confirmingReset === diff.key;
+                const isExpertLocked = diff.key === 'expert' && !book.progress.hard?.completed;
 
-                return (
-                  <motion.div
-                    key={diff.key}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  >
-                    <Link href={`/books/${bookSlug}/${diff.key}`}>
-                      <ParchmentCard hoverable className={`${diff.borderColor} border-2`}>
+                const diffNames: Record<string, string> = {
+                  easy: t('difficulty.firstYears'),
+                  normal: t('difficulty.owls'),
+                  hard: t('difficulty.newts'),
+                  expert: t('difficulty.orderOfThePhoenix'),
+                };
+                const diffLabels: Record<string, string> = {
+                  easy: t('difficulty.easy'),
+                  normal: t('difficulty.normal'),
+                  hard: t('difficulty.hard'),
+                  expert: t('difficulty.expert'),
+                };
+                const diffDescs: Record<string, string> = {
+                  easy: t('difficulty.easyDesc'),
+                  normal: t('difficulty.normalDesc'),
+                  hard: t('difficulty.hardDesc'),
+                  expert: t('difficulty.expertDesc'),
+                };
+
+                const card = (
+                      <ParchmentCard hoverable={!isExpertLocked} className={`${diff.borderColor} border-2 ${isExpertLocked ? 'opacity-60 grayscale' : ''}`}>
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-1">
                               <span className={`text-2xl ${diff.iconColor}`}>
-                                {diff.icon}
+                                {isExpertLocked ? '\uD83D\uDD12' : diff.icon}
                               </span>
                               <h3
                                 className={`font-[family-name:var(--font-cinzel)] text-xl font-bold ${diff.textColor}`}
                               >
-                                {diff.key === 'easy' ? t('difficulty.firstYears') : diff.key === 'normal' ? t('difficulty.owls') : t('difficulty.newts')}
+                                {diffNames[diff.key]}
                               </h3>
                             </div>
                             <p className={`text-sm font-semibold ${diff.textColor} opacity-60 mb-2`}>
-                              {diff.key === 'easy' ? t('difficulty.easy') : diff.key === 'normal' ? t('difficulty.normal') : t('difficulty.hard')}
+                              {diffLabels[diff.key]}
                             </p>
                             <p className="text-slate-600 text-base">
-                              {diff.key === 'easy' ? t('difficulty.easyDesc') : diff.key === 'normal' ? t('difficulty.normalDesc') : t('difficulty.hardDesc')}
+                              {isExpertLocked ? t('difficulty.expertLocked') : diffDescs[diff.key]}
                             </p>
                           </div>
 
                           {/* Completion status */}
+                          {!isExpertLocked && (
                           <div className="flex-shrink-0 text-right">
                             {isCompleted ? (
                               <div className="flex flex-col items-end">
@@ -313,10 +336,11 @@ export default function BookDifficultyPage({
                               </span>
                             )}
                           </div>
+                          )}
                         </div>
 
                         {/* Start Over button */}
-                        {hasProgress && !isConfirming && (
+                        {hasProgress && !isConfirming && !isExpertLocked && (
                           <div className="mt-3 pt-3 border-t border-slate-200/50">
                             <button
                               type="button"
@@ -378,7 +402,20 @@ export default function BookDifficultyPage({
                           </div>
                         )}
                       </ParchmentCard>
-                    </Link>
+                );
+
+                return (
+                  <motion.div
+                    key={diff.key}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                  >
+                    {isExpertLocked ? card : (
+                      <Link href={`/books/${bookSlug}/${diff.key}`}>
+                        {card}
+                      </Link>
+                    )}
                   </motion.div>
                 );
               })}

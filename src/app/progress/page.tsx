@@ -30,6 +30,7 @@ interface BookProgressData {
     easy: DifficultyProgress | null;
     normal: DifficultyProgress | null;
     hard: DifficultyProgress | null;
+    expert: DifficultyProgress | null;
   };
 }
 
@@ -98,7 +99,7 @@ export default function ProgressPage() {
     let totalPoints = 0;
 
     for (const bp of progress.bookProgress) {
-      for (const diff of ['easy', 'normal', 'hard'] as const) {
+      for (const diff of ['easy', 'normal', 'hard', 'expert'] as const) {
         const d = bp.difficulties[diff];
         if (d) {
           totalAnswered += d.questionsAnswered;
@@ -121,6 +122,8 @@ export default function ProgressPage() {
         return 'text-blue-700';
       case 'hard':
         return 'text-amber-700';
+      case 'expert':
+        return 'text-purple-700';
       default:
         return 'text-slate-700';
     }
@@ -134,6 +137,8 @@ export default function ProgressPage() {
         return t('difficulty.owls');
       case 'hard':
         return t('difficulty.newts');
+      case 'expert':
+        return t('difficulty.orderOfThePhoenix');
       default:
         return diff;
     }
@@ -147,6 +152,8 @@ export default function ProgressPage() {
         return 'bg-blue-500';
       case 'hard':
         return 'bg-amber-500';
+      case 'expert':
+        return 'bg-purple-500';
       default:
         return 'bg-slate-500';
     }
@@ -289,7 +296,7 @@ export default function ProgressPage() {
                   // Calculate book completion percentage
                   let bookAnswered = 0;
                   let bookTotal = 0;
-                  for (const diff of ['easy', 'normal', 'hard'] as const) {
+                  for (const diff of ['easy', 'normal', 'hard', 'expert'] as const) {
                     bookTotal += 10; // 10 questions per difficulty
                     const d = bp.difficulties[diff];
                     if (d) {
@@ -371,8 +378,8 @@ export default function ProgressPage() {
                             </div>
 
                             {/* Per-difficulty status */}
-                            <div className="grid grid-cols-3 gap-2">
-                              {(['easy', 'normal', 'hard'] as const).map(
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              {(['easy', 'normal', 'hard', 'expert'] as const).map(
                                 (diff) => {
                                   const d = bp.difficulties[diff];
                                   const answered = d?.questionsAnswered ?? 0;

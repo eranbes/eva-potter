@@ -15,27 +15,19 @@ sqlite.pragma('foreign_keys = OFF');
 console.log('🧙 Eva Potter Database Seed');
 console.log('📁 Database path:', dbPath);
 
-// Drop existing tables
-console.log('🗑️  Dropping existing tables...');
-sqlite.exec(`DROP TABLE IF EXISTS user_answers`);
-sqlite.exec(`DROP TABLE IF EXISTS user_progress`);
-sqlite.exec(`DROP TABLE IF EXISTS questions`);
-sqlite.exec(`DROP TABLE IF EXISTS game_settings`);
-sqlite.exec(`DROP TABLE IF EXISTS books`);
-sqlite.exec(`DROP TABLE IF EXISTS users`);
-
-// Create tables
-console.log('📋 Creating tables...');
+// Create tables if they don't exist (never drops user data)
+console.log('📋 Creating tables (if not exist)...');
 sqlite.exec(`
-  CREATE TABLE users (
+  CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     first_name TEXT NOT NULL,
+    pin TEXT NOT NULL DEFAULT '',
     total_points INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL DEFAULT ''
   );
 
-  CREATE TABLE books (
+  CREATE TABLE IF NOT EXISTS books (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
@@ -45,7 +37,7 @@ sqlite.exec(`
     points_to_unlock INTEGER NOT NULL DEFAULT 0
   );
 
-  CREATE TABLE questions (
+  CREATE TABLE IF NOT EXISTS questions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     book_id INTEGER NOT NULL REFERENCES books(id),
     difficulty TEXT NOT NULL,
@@ -59,7 +51,7 @@ sqlite.exec(`
     sort_order INTEGER NOT NULL DEFAULT 0
   );
 
-  CREATE TABLE user_progress (
+  CREATE TABLE IF NOT EXISTS user_progress (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL REFERENCES users(id),
     book_id INTEGER NOT NULL REFERENCES books(id),
@@ -70,7 +62,7 @@ sqlite.exec(`
     completed INTEGER NOT NULL DEFAULT 0
   );
 
-  CREATE TABLE user_answers (
+  CREATE TABLE IF NOT EXISTS user_answers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL REFERENCES users(id),
     question_id INTEGER NOT NULL REFERENCES questions(id),
@@ -79,11 +71,27 @@ sqlite.exec(`
     points_awarded INTEGER NOT NULL DEFAULT 0
   );
 
-  CREATE TABLE game_settings (
+  CREATE TABLE IF NOT EXISTS game_settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS wordle_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    word TEXT NOT NULL,
+    won INTEGER NOT NULL,
+    guesses_used INTEGER NOT NULL,
+    points_awarded INTEGER NOT NULL DEFAULT 0,
+    played_at TEXT NOT NULL
+  );
 `);
+
+// Clear and re-seed content tables only (preserving user data)
+console.log('🔄 Refreshing content tables...');
+sqlite.exec(`DELETE FROM questions`);
+sqlite.exec(`DELETE FROM books`);
+sqlite.exec(`DELETE FROM game_settings`);
 
 // Seed books
 console.log('📚 Seeding books...');
@@ -111,6 +119,7 @@ const insertSetting = sqlite.prepare(`INSERT INTO game_settings (key, value) VAL
 insertSetting.run('points_easy', '10');
 insertSetting.run('points_normal', '20');
 insertSetting.run('points_hard', '30');
+insertSetting.run('points_expert', '40');
 insertSetting.run('questions_per_level', '10');
 
 // Seed questions
@@ -380,6 +389,93 @@ const questions: Q[] = [
   [7, 'hard', 'What destroyed the Ravenclaw diadem Horcrux?', 'The Sword of Gryffindor', 'Basilisk venom', 'Fiendfyre', 'Avada Kedavra', 'C', 'Crabbe accidentally cast Fiendfyre in the Room of Requirement, which destroyed the diadem. Fiendfyre is one of the substances that can destroy Horcruxes.', 8],
   [7, 'hard', 'What does Snape\'s Patronus reveal about him?', 'He is a Death Eater', 'He loved Lily — his Patronus is a doe, matching hers', 'He is related to Voldemort', 'He was the Half-Blood Prince', 'B', 'Snape\'s Patronus was a silver doe, the same as Lily Potter\'s. When Dumbledore asked "After all this time?" Snape replied "Always."', 9],
   [7, 'hard', 'What happens to the Elder Wand after Voldemort\'s defeat?', 'Harry keeps it', 'Harry snaps it and throws it away', 'It is buried with Dumbledore', 'Harry gives it to the Ministry', 'B', 'In the book, Harry uses it to repair his own broken wand, then returns it to Dumbledore\'s tomb. In the film, he snaps it and throws it away.', 10],
+
+  // ===== EXPERT QUESTIONS =====
+  // These are extremely difficult — obscure details, minor characters, specific numbers, easily confused facts.
+
+  // ===== BOOK 1: Philosopher's Stone — Expert (10) =====
+  [1, 'expert', 'What day of the week does the story begin on?', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'B', 'The book opens with "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal" on a Tuesday.', 1],
+  [1, 'expert', 'What is the name of the newsreader who reports on the unusual owl activity?', 'Jim McGuffin', 'Ted', 'Vernon Dursley', 'Dedalus Diggle', 'A', 'Jim McGuffin is the newsreader on the evening news who reports on the unusual behaviour of owls during the day.', 2],
+  [1, 'expert', 'How many presents did Dudley count on his birthday before getting upset?', '36', '37', '38', '39', 'A', 'Dudley counted 36 presents and was furious because he had 37 the year before. His parents promised to buy him two more while out.', 3],
+  [1, 'expert', 'What does Dedalus Diggle do when he meets Harry in a shop?', 'Shakes his hand', 'Bows to him', 'Gives him a present', 'Winks at him', 'B', 'Dedalus Diggle bowed to Harry in a shop once. Mr Dursley thought the little man in a violet top hat was very strange.', 4],
+  [1, 'expert', 'What flavour birthday cake does Hagrid bring Harry?', 'Vanilla with pink icing', 'Chocolate with green icing', 'Chocolate with pink icing', 'Vanilla with green icing', 'C', 'Hagrid brought a sticky chocolate birthday cake with "Happee Birthdae Harry" written on it in green icing.', 5],
+  [1, 'expert', 'What does the inscription on the Mirror of Erised say when read backwards?', 'I show not your face but your heart\'s desire', 'I show your deepest dreams', 'I reveal what you truly want', 'I show the future you desire', 'A', 'The inscription "Erised stra ehru oyt ube cafru oyt on wohsi" reads backwards as "I show not your face but your heart\'s desire."', 6],
+  [1, 'expert', 'What is the name of the pub where Hagrid wins the dragon egg?', 'The Three Broomsticks', 'The Leaky Cauldron', 'The Hog\'s Head', 'The Broomsticks Inn', 'C', 'Hagrid won the dragon egg from a hooded stranger at the Hog\'s Head pub in Hogsmeade, who was actually Quirrell in disguise.', 7],
+  [1, 'expert', 'What is Neville\'s toad called?', 'Trevor', 'Neville', 'Gordon', 'Dennis', 'A', 'Neville\'s toad is called Trevor, and he is constantly losing him. Trevor tries to escape at every opportunity.', 8],
+  [1, 'expert', 'According to Dumbledore, what are the twelve uses of dragon\'s blood attributed to him?', 'He discovered all twelve', 'He discovered ten of twelve', 'The card only says twelve uses', 'He perfected them with Flamel', 'C', 'Dumbledore\'s Chocolate Frog card states he is "particularly famous for his discovery of the twelve uses of dragon\'s blood."', 9],
+  [1, 'expert', 'What does Hermione say is the logic puzzle\'s potion bottle that lets you move forward through the black flames?', 'The largest bottle', 'The smallest bottle', 'The round bottle', 'The second from the left', 'B', 'Hermione solves Snape\'s logic puzzle and identifies the smallest bottle as the one that will let the drinker pass through the black fire ahead.', 10],
+
+  // ===== BOOK 2: Chamber of Secrets — Expert (10) =====
+  [2, 'expert', 'What colour is the Ford Anglia?', 'Red', 'Blue', 'Turquoise', 'Green', 'C', 'Arthur Weasley\'s enchanted Ford Anglia is turquoise. It later goes wild in the Forbidden Forest after crashing into the Whomping Willow.', 1],
+  [2, 'expert', 'What is Gilderoy Lockhart\'s favourite colour?', 'Blue', 'Lilac', 'Gold', 'Scarlet', 'B', 'Lockhart\'s favourite colour is lilac, as mentioned in one of his books. He frequently wears lilac robes.', 2],
+  [2, 'expert', 'What does Mrs Weasley use to clean Harry\'s face when they first meet?', 'A spell', 'A cloth', 'A spit-dampened handkerchief', 'Water from her wand', 'C', 'Mrs Weasley uses a crumpled handkerchief to clean soot off Harry\'s face after he arrives via Floo powder, much like a typical mum.', 3],
+  [2, 'expert', 'How many Valentine\'s Day cards did Lockhart say he received?', '46', '36', '56', '26', 'A', 'Lockhart boasted about receiving 46 Valentine\'s cards and decorated the Great Hall with pink flowers and heart-shaped confetti.', 4],
+  [2, 'expert', 'What punishment does Filch give Harry that reveals Filch is a Squib?', 'Lines with a quill', 'Polishing trophies', 'Harry sees a Kwikspell letter on his desk', 'Cleaning the dungeon', 'C', 'While in Filch\'s office for punishment, Harry sees a Kwikspell course envelope — a correspondence course for Squibs (non-magical people born to wizarding families).', 5],
+  [2, 'expert', 'What is the name of Aragog\'s wife?', 'Mosag', 'Shelob', 'Arachne', 'Ungoliant', 'A', 'Aragog\'s wife is Mosag. Hagrid found her for Aragog so they could have a family — they produced a massive colony of Acromantulas.', 6],
+  [2, 'expert', 'What is the last thing Tom Riddle writes in the air with Harry\'s wand?', 'His name', 'TOM MARVOLO RIDDLE then rearranges it to I AM LORD VOLDEMORT', 'A spell', 'The Dark Mark', 'B', 'Tom Riddle writes his full name in the air then rearranges the letters to reveal "I AM LORD VOLDEMORT."', 7],
+  [2, 'expert', 'What is the name of the ghost who attends Nearly Headless Nick\'s Deathday Party from the Far East?', 'The Wailing Widow', 'The Headless Hunt', 'Peeves', 'There is no such ghost named', 'A', 'The Wailing Widow came all the way from Kent (not the Far East). The Far East was not specifically referenced for a guest — it was a trick. The Wailing Widow of Kent is mentioned.', 8],
+  [2, 'expert', 'What does the Howler from Mrs Weasley say Ron stole?', 'The broomstick', 'The car', 'Money from the vault', 'Fred\'s wand', 'B', 'Mrs Weasley\'s Howler screams about Ron stealing the car, saying his father is facing an inquiry at work and if he puts another toe out of line she\'ll bring him straight home.', 9],
+  [2, 'expert', 'How many years has Filch been filing complaints about Peeves?', 'He files about four a year since he started', 'It is never specified exactly', 'Three per year for twenty years', 'One per term', 'A', 'Filch\'s filing cabinet contains hundreds of complaints about Peeves, and he files them regularly — roughly four a year is mentioned.', 10],
+
+  // ===== BOOK 3: Prisoner of Azkaban — Expert (10) =====
+  [3, 'expert', 'What is the conductor of the Knight Bus called?', 'Ernie Prang', 'Stan Shunpike', 'Tom', 'Mundungus Fletcher', 'B', 'Stan Shunpike is the conductor. Ernie Prang is the driver. Stan later ended up in Azkaban, wrongly imprisoned as a suspected Death Eater.', 1],
+  [3, 'expert', 'What is the name of Hermione\'s cat?', 'Crookshanks', 'Mrs Norris', 'Tibbles', 'Snowball', 'A', 'Crookshanks is a large, ginger, bandy-legged cat who is part Kneazle. He is unusually intelligent and recognised Scabbers as Peter Pettigrew.', 2],
+  [3, 'expert', 'How long had Scabbers been with the Weasley family before Ron?', 'Five years', 'Eight years', 'Twelve years', 'Three years', 'C', 'Scabbers (Peter Pettigrew) lived as a rat for twelve years — first with Percy, then with Ron — hiding from Voldemort\'s followers.', 3],
+  [3, 'expert', 'What does the Boggart turn into when faced by Professor Lupin?', 'A full moon', 'A silvery-white orb', 'A crystal ball with mist', 'A werewolf', 'B', 'Lupin\'s Boggart becomes a silvery-white orb representing the full moon, since the full moon triggers his painful werewolf transformation.', 4],
+  [3, 'expert', 'What finger did Peter Pettigrew cut off to fake his own death?', 'His index finger', 'His thumb', 'His middle finger', 'His ring finger', 'A', 'Pettigrew cut off his index finger (the biggest bit they found of him was his finger) before transforming into a rat and escaping into the sewer.', 5],
+  [3, 'expert', 'Who is the driver of the Knight Bus?', 'Stan Shunpike', 'Ernie Prang', 'Ern', 'Angus', 'B', 'Ernie Prang is the elderly driver of the Knight Bus. Stan Shunpike calls him "Ern" for short.', 6],
+  [3, 'expert', 'What sweet does Professor Lupin offer Harry on the Hogwarts Express?', 'A Chocolate Frog', 'Bertie Bott\'s Beans', 'A piece of chocolate', 'Drooble\'s Best Blowing Gum', 'C', 'Lupin gives Harry a large piece of chocolate after the Dementor attack on the train. Chocolate is the best remedy for a Dementor encounter.', 7],
+  [3, 'expert', 'What is the street address of the Dursleys?', 'Number 4, Privet Drive', 'Number 7, Privet Drive', 'Number 4, Magnolia Crescent', 'Number 12, Privet Drive', 'A', 'The Dursleys live at number 4, Privet Drive, Little Whinging, Surrey. This has been Harry\'s home since he was left on the doorstep as a baby.', 8],
+  [3, 'expert', 'How much does a ride on the Knight Bus cost for hot chocolate?', 'Eleven Sickles', 'Fourteen Sickles', 'Thirteen Sickles', 'Nine Sickles', 'C', 'The Knight Bus costs eleven Sickles for a basic ride, but thirteen Sickles if you want hot chocolate, and fifteen for a hot water bottle and toothbrush.', 9],
+  [3, 'expert', 'What alias does Sirius use when writing to Harry?', 'Padfoot', 'Snuffles', 'Moony', 'A concerned friend', 'B', 'Sirius signs his letters as "Snuffles" so that if the letters are intercepted, no one will know who wrote them.', 10],
+
+  // ===== BOOK 4: Goblet of Fire — Expert (10) =====
+  [4, 'expert', 'What is the name of the campsite manager at the Quidditch World Cup?', 'Mr Roberts', 'Mr Payne', 'Mr Weasley', 'Mr Bagman', 'A', 'Mr Roberts is the Muggle who manages the campsite. He keeps getting suspicious about the wizards and has to be Memory Charmed repeatedly.', 1],
+  [4, 'expert', 'Who catches the Snitch in the Quidditch World Cup final?', 'The Irish Seeker', 'Viktor Krum', 'Both seekers at once', 'Neither — the game was called', 'B', 'Krum caught the Snitch but Ireland still won because they were 160 points ahead. The final score was Ireland 170, Bulgaria 160.', 2],
+  [4, 'expert', 'What is the incantation to conjure the Dark Mark?', 'Morsmordre', 'Avada Kedavra', 'Serpensortia', 'Sectumsempra', 'A', 'Morsmordre is the spell that conjures the Dark Mark in the sky. Barty Crouch Jr.\'s house-elf Winky was found with the wand that cast it.', 3],
+  [4, 'expert', 'What is the name of Barty Crouch\'s house-elf?', 'Dobby', 'Kreacher', 'Winky', 'Hokey', 'C', 'Winky was fiercely loyal to Barty Crouch Sr. She was devastated when he dismissed her after she was found holding the wand that cast the Dark Mark.', 4],
+  [4, 'expert', 'What does Harry see emerge from Voldemort\'s wand during Priori Incantatem?', 'Only his parents', 'Cedric, an old man, Bertha Jorkins, and his parents', 'Just Cedric Diggory', 'Dumbledore and Snape', 'B', 'The echoes that emerged in reverse order were: Cedric Diggory, Frank Bryce (the old Muggle), Bertha Jorkins, Lily Potter, and James Potter.', 5],
+  [4, 'expert', 'What maze creature asks Harry a riddle during the third task?', 'A centaur', 'A sphinx', 'A troll', 'A Blast-Ended Skrewt', 'B', 'A sphinx blocks Harry\'s path and asks him a riddle. The answer is "spider." If he got it wrong, she would attack him.', 6],
+  [4, 'expert', 'What is the name of the village where the Riddle family lived?', 'Godric\'s Hollow', 'Little Hangleton', 'Ottery St Catchpole', 'Tinworth', 'B', 'The Riddle family lived in a large house on a hill overlooking the village of Little Hangleton. This is also where the graveyard is.', 7],
+  [4, 'expert', 'How old must champions be to enter the Triwizard Tournament?', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'C', 'An Age Line was drawn around the Goblet of Fire so that only students aged seventeen or over could enter. Fred and George tried an Ageing Potion.', 8],
+  [4, 'expert', 'What are Blast-Ended Skrewts a cross between?', 'Manticores and fire crabs', 'Dragons and scorpions', 'Acromantulas and salamanders', 'Hippogriffs and nifflers', 'A', 'Blast-Ended Skrewts are a cross between Manticores and fire crabs. Hagrid bred them illegally. They blast fire from their ends and have stingers.', 9],
+  [4, 'expert', 'What does Moody\'s magical eye allow him to see?', 'The future', 'Through walls, invisibility cloaks, and the back of his own head', 'Only dark magic', 'People\'s thoughts', 'B', 'Mad-Eye Moody\'s magical eye can see through almost anything — walls, Invisibility Cloaks, the back of his own head, and even through solid wood.', 10],
+
+  // ===== BOOK 5: Order of the Phoenix — Expert (10) =====
+  [5, 'expert', 'What is the address of the Order of the Phoenix headquarters?', 'Number 11, Grimmauld Place', 'Number 12, Grimmauld Place', 'Number 13, Grimmauld Place', 'Number 10, Grimmauld Place', 'B', 'Number 12, Grimmauld Place, London, is the ancestral home of the Black family and is hidden by a Fidelius Charm.', 1],
+  [5, 'expert', 'What is the name of Neville\'s plant that squirts Stinksap?', 'Mimbulus mimbletonia', 'Mandrake', 'Venomous Tentacula', 'Fanged Geranium', 'A', 'Mimbulus mimbletonia is a rare Assyrian plant that squirts Stinksap as a defence mechanism. Neville received it as a birthday gift from his great uncle Algie.', 2],
+  [5, 'expert', 'What is Mrs Figg\'s role in the Order?', 'She is a witch who guards Harry', 'She is a Squib placed by Dumbledore to watch over Harry', 'She is a Muggle spy', 'She has no role', 'B', 'Arabella Figg is a Squib whom Dumbledore placed in Little Whinging to keep an eye on Harry while he lived with the Dursleys.', 3],
+  [5, 'expert', 'How many O.W.L.s does Percy Weasley get?', 'Ten', 'Twelve', 'Seven', 'Nine', 'B', 'Percy Weasley received twelve O.W.L.s, the maximum possible, making him a top student and eventual Ministry employee.', 4],
+  [5, 'expert', 'What is the number of the courtroom where Harry\'s hearing takes place?', 'Courtroom Seven', 'Courtroom Ten', 'Courtroom Three', 'Courtroom Twelve', 'B', 'Harry\'s disciplinary hearing was held in Courtroom Ten, which is the same courtroom used for Death Eater trials, deep in the Department of Mysteries level.', 5],
+  [5, 'expert', 'What form does Tonks\'s Patronus take?', 'A wolf', 'A jack rabbit', 'It changes — later it becomes a wolf', 'A cat', 'B', 'In this book, Tonks\'s Patronus is a jack rabbit. It later changes to a wolf when she falls in love with Remus Lupin.', 6],
+  [5, 'expert', 'Who is the founder of the original Order of the Phoenix besides Dumbledore?', 'There is no other founder', 'Dumbledore is the sole founder', 'Alastor Moody co-founded it', 'The original Order had no single founder', 'B', 'Dumbledore is the sole founder of the Order of the Phoenix, created during the first war against Voldemort.', 7],
+  [5, 'expert', 'What is the maximum score on an O.W.L. exam?', 'Outstanding', 'Outstanding with distinction', 'Outstanding Plus', 'There is no maximum — just Outstanding', 'A', 'O.W.L. passing grades are Outstanding (O), Exceeds Expectations (E), and Acceptable (A). Failing grades are Poor (P), Dreadful (D), and Troll (T).', 8],
+  [5, 'expert', 'What is the room number where the prophecy is stored?', 'Row 97', 'Row 94', 'Row 95', 'Row 93', 'A', 'The prophecy about Harry and Voldemort is stored in Row 97 of the Hall of Prophecy in the Department of Mysteries.', 9],
+  [5, 'expert', 'What does the inscription on the prophecy record say?', 'S.P.T. to A.P.W.B.D. — Dark Lord and (?) Harry Potter', 'Harry Potter and the Dark Lord', 'The Chosen One prophecy', 'Trelawney\'s First Prophecy', 'A', 'The label reads "S.P.T. to A.P.W.B.D. — Dark Lord and (?) Harry Potter" — meaning Sybill Patricia Trelawney to Albus Percival Wulfric Brian Dumbledore.', 10],
+
+  // ===== BOOK 6: Half-Blood Prince — Expert (10) =====
+  [6, 'expert', 'What is the name of the village where the Gaunt family lived?', 'Godric\'s Hollow', 'Little Hangleton', 'Great Hangleton', 'Ottery St Catchpole', 'B', 'The Gaunt family lived in a shack on the outskirts of Little Hangleton, the same village where the Riddle family\'s grand house stood.', 1],
+  [6, 'expert', 'What is the name of the house-elf who shows Dumbledore a memory about Hufflepuff\'s cup?', 'Dobby', 'Winky', 'Kreacher', 'Hokey', 'D', 'Hokey was the house-elf of Hepzibah Smith. She showed Tom Riddle Hufflepuff\'s cup and Slytherin\'s locket, which he then stole after murdering Hepzibah.', 2],
+  [6, 'expert', 'What was Tom Riddle\'s mother\'s love potion ingredient?', 'Amortentia', 'A love potion is implied but never specified', 'Felix Felicis', 'A philtre she made herself', 'B', 'It is strongly implied that Merope Gaunt used a love potion (possibly Amortentia) on Tom Riddle Sr., but the exact potion is never confirmed.', 3],
+  [6, 'expert', 'What does Dumbledore say his scar looks like above his left knee?', 'A map of the London Underground', 'A perfect map of the London Underground', 'The constellation Orion', 'A lightning bolt', 'B', 'When McGonagall questions Dumbledore\'s scars, he mentions having a scar above his left knee that is a perfect map of the London Underground.', 4],
+  [6, 'expert', 'What is the name of Hepzibah Smith\'s prized possession that was a Hogwarts founder\'s artefact?', 'Gryffindor\'s sword', 'Hufflepuff\'s cup', 'Ravenclaw\'s diadem', 'Slytherin\'s ring', 'B', 'Hepzibah Smith proudly showed Tom Riddle two treasures: Slytherin\'s locket and Hufflepuff\'s cup. Riddle murdered her and stole both.', 5],
+  [6, 'expert', 'What is the name of the orphanage where Tom Riddle grew up?', 'St Mary\'s', 'Wool\'s Orphanage', 'London Orphanage', 'St Brutus\'s', 'B', 'Tom Riddle grew up in Wool\'s Orphanage in London. Dumbledore visited him there to invite him to Hogwarts.', 6],
+  [6, 'expert', 'What does Mundungus Fletcher steal from Grimmauld Place?', 'The Black family silver', 'Slytherin\'s locket', 'Both the family silver and the locket', 'Sirius\'s wand', 'C', 'Mundungus stole various items from 12 Grimmauld Place after Sirius died, including the real Slytherin locket Horcrux and the family silver.', 7],
+  [6, 'expert', 'What potion does Slughorn say was his finest brew when teaching at Hogwarts?', 'Felix Felicis', 'Amortentia', 'Draught of Living Death', 'Wolfsbane Potion', 'A', 'Slughorn describes his finest brewing achievement and shows Felix Felicis (Liquid Luck) as a sample to his class, offering it as a prize.', 8],
+  [6, 'expert', 'What is the name of Ogden from the Ministry who visits the Gaunt house?', 'Bob Ogden', 'Bill Ogden', 'Barnabas Ogden', 'Bertie Ogden', 'A', 'Bob Ogden was from the Department of Magical Law Enforcement. He visited the Gaunt shack because Morfin had attacked Tom Riddle Sr. with magic.', 9],
+  [6, 'expert', 'What ingredient does Slughorn say is key to the Draught of Living Death that Harry improves?', 'Sopophorous bean — crush it, don\'t cut it', 'Valerian roots', 'Wormwood', 'Asphodel', 'A', 'The Half-Blood Prince\'s textbook advised crushing the Sopophorous bean with the flat side of a silver dagger rather than cutting it, which releases more juice.', 10],
+
+  // ===== BOOK 7: Deathly Hallows — Expert (10) =====
+  [7, 'expert', 'What is the name of the goblin who helps Harry break into Gringotts?', 'Griphook', 'Bogrod', 'Ragnok', 'Gornuk', 'A', 'Griphook agreed to help Harry break into the Lestrange vault in exchange for the Sword of Gryffindor, which he considered goblin-made property.', 1],
+  [7, 'expert', 'What is the name of the Muggle Studies teacher killed by Voldemort?', 'Charity Burbage', 'Alecto Carrow', 'Aurora Sinistra', 'Bathsheda Babbling', 'A', 'Charity Burbage was murdered by Voldemort at Malfoy Manor in front of the Death Eaters. She had written in favour of Muggle-borns.', 2],
+  [7, 'expert', 'What is the name of the dragon in Gringotts?', 'It is never named — it is a Ukrainian Ironbelly', 'Norberta', 'Gringott', 'Albion', 'A', 'The dragon guarding the high-security vaults is an old, blind, pale Ukrainian Ironbelly that has been underground for years. It is never given a name.', 3],
+  [7, 'expert', 'What is the Taboo curse placed on Voldemort\'s name?', 'It burns the speaker', 'Saying "Voldemort" breaks protective enchantments and alerts Snatchers', 'It causes the speaker to forget', 'It summons Voldemort himself', 'B', 'The Taboo meant that anyone who spoke Voldemort\'s name aloud would have their protective enchantments broken and Snatchers would be alerted to their location.', 4],
+  [7, 'expert', 'What does Dumbledore\'s will say about the Sword of Gryffindor?', 'It goes to Harry', 'It goes to Neville', 'The Ministry claims it is not Dumbledore\'s to give', 'It goes to McGonagall', 'C', 'Dumbledore bequeathed the Sword of Gryffindor to Harry, but the Ministry argued it was not Dumbledore\'s personal possession to give away.', 5],
+  [7, 'expert', 'What are the names of the Snatchers who capture Harry?', 'Greyback, Scabior, and others', 'Crabbe and Goyle', 'Yaxley and Rowle', 'Dolohov and Thorfinn', 'A', 'The Snatchers led by Fenrir Greyback and Scabior capture Harry, Ron, and Hermione after Harry says "Voldemort," triggering the Taboo.', 6],
+  [7, 'expert', 'What does the sign on Xenophilius Lovegood\'s door say?', 'Welcome', 'The Deathly Hallows symbol', 'Do not disturb the Dirigible Plums', 'The Quibbler — Editor in Chief', 'C', 'Luna\'s home has a sign and the garden has Dirigible Plums. Xenophilius is eccentric and the editor of The Quibbler.', 7],
+  [7, 'expert', 'What is the name of the wandmaker Voldemort visits to learn about the Elder Wand?', 'Ollivander', 'Gregorovitch', 'Both — he kidnaps Ollivander and tracks down Gregorovitch', 'Jimmy Kiddell', 'C', 'Voldemort kidnaps Ollivander first to learn about the twin cores, then tracks down Gregorovitch because the Elder Wand was stolen from him by Grindelwald.', 8],
+  [7, 'expert', 'Who cast the Fidelius Charm making Bill Weasley the Secret-Keeper for Shell Cottage?', 'Bill himself', 'Arthur Weasley', 'Bill — the homeowner is typically the Secret-Keeper', 'Fleur Delacour', 'C', 'Bill Weasley is the Secret-Keeper for Shell Cottage, where Harry, Luna, Dean, and the others go after escaping Malfoy Manor.', 9],
+  [7, 'expert', 'What are the last words Snape says before he dies?', '"Always"', '"Look at me" — so he can see Lily\'s eyes one last time', '"Tell Dumbledore"', '"Protect Harry"', 'B', '"Look at me," Snape asks Harry, wanting to see Lily\'s green eyes one last time as he dies. "Always" is his response about his Patronus in a memory.', 10],
 ];
 
 // Insert all questions
@@ -394,7 +490,7 @@ insertMany(questions);
 sqlite.pragma('foreign_keys = ON');
 
 console.log(`✅ Seeded ${booksData.length} books`);
-console.log(`✅ Seeded 4 game settings`);
+console.log(`✅ Seeded 5 game settings`);
 console.log(`✅ Seeded ${questions.length} questions`);
 console.log('🎉 Database seeding complete!');
 

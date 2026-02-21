@@ -11,6 +11,7 @@ const DEFAULT_POINTS: Record<string, number> = {
   easy: 10,
   normal: 20,
   hard: 30,
+  expert: 40,
 };
 
 async function getPointsForDifficulty(difficulty: string): Promise<number> {

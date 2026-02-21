@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/components/providers/LanguageProvider';
 
-type Difficulty = 'easy' | 'normal' | 'hard';
+type Difficulty = 'easy' | 'normal' | 'hard' | 'expert';
 
 interface BookProgress {
   completed: boolean;
@@ -27,6 +27,7 @@ const difficultyColors: Record<Difficulty, string> = {
   easy: 'bg-emerald-500',
   normal: 'bg-yellow-500',
   hard: 'bg-orange-500',
+  expert: 'bg-purple-500',
 };
 
 export default function BookCard({
@@ -46,6 +47,7 @@ export default function BookCard({
     easy: t('difficulty.easy'),
     normal: t('difficulty.normal'),
     hard: t('difficulty.hard'),
+    expert: t('difficulty.expert'),
   };
 
   return (
@@ -118,7 +120,7 @@ export default function BookCard({
       {/* Completion badges */}
       {unlocked && (
         <div className="flex items-center gap-1.5 mt-2">
-          {(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => {
+          {(['easy', 'normal', 'hard', 'expert'] as Difficulty[]).map((diff) => {
             const p = progress[diff];
             const completed = p?.completed ?? false;
             return (

@@ -207,7 +207,7 @@ export default function QuizPlayPage({
   const [bookTitle, setBookTitle] = useState('');
   const [error, setError] = useState('');
 
-  const validDifficulties = ['easy', 'normal', 'hard'];
+  const validDifficulties = ['easy', 'normal', 'hard', 'expert'];
   const isValidDifficulty = validDifficulties.includes(difficulty);
 
   // Refs for latest state in callbacks
@@ -435,7 +435,7 @@ export default function QuizPlayPage({
 
   const currentQuestion = questions[currentIndex];
   const difficultyLabel =
-    difficulty === 'easy' ? t('difficulty.firstYears') : difficulty === 'normal' ? t('difficulty.owls') : t('difficulty.newts');
+    difficulty === 'easy' ? t('difficulty.firstYears') : difficulty === 'normal' ? t('difficulty.owls') : difficulty === 'hard' ? t('difficulty.newts') : t('difficulty.orderOfThePhoenix');
 
   return (
     <div className="min-h-screen flex flex-col">

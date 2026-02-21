@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!difficulty || !['easy', 'normal', 'hard'].includes(difficulty)) {
+    if (!difficulty || !['easy', 'normal', 'hard', 'expert'].includes(difficulty)) {
       return NextResponse.json(
-        { error: 'difficulty must be easy, normal, or hard' },
+        { error: 'difficulty must be easy, normal, hard, or expert' },
         { status: 400 }
       );
     }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         and(
           eq(schema.userProgress.userId, userId),
           eq(schema.userProgress.bookId, book.id),
-          eq(schema.userProgress.difficulty, difficulty as 'easy' | 'normal' | 'hard')
+          eq(schema.userProgress.difficulty, difficulty as 'easy' | 'normal' | 'hard' | 'expert')
         )
       );
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       .where(
         and(
           eq(schema.questions.bookId, book.id),
-          eq(schema.questions.difficulty, difficulty as 'easy' | 'normal' | 'hard')
+          eq(schema.questions.difficulty, difficulty as 'easy' | 'normal' | 'hard' | 'expert')
         )
       );
 

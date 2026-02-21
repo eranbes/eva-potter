@@ -3,6 +3,7 @@ import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   firstName: text('first_name').notNull(),
+  pin: text('pin').notNull().default(''),
   totalPoints: integer('total_points').notNull().default(0),
   createdAt: text('created_at').notNull().default(''),
   updatedAt: text('updated_at').notNull().default(''),
@@ -21,7 +22,7 @@ export const books = sqliteTable('books', {
 export const questions = sqliteTable('questions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   bookId: integer('book_id').notNull().references(() => books.id),
-  difficulty: text('difficulty', { enum: ['easy', 'normal', 'hard'] }).notNull(),
+  difficulty: text('difficulty', { enum: ['easy', 'normal', 'hard', 'expert'] }).notNull(),
   questionText: text('question_text').notNull(),
   optionA: text('option_a').notNull(),
   optionB: text('option_b').notNull(),
@@ -36,7 +37,7 @@ export const userProgress = sqliteTable('user_progress', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: text('user_id').notNull().references(() => users.id),
   bookId: integer('book_id').notNull().references(() => books.id),
-  difficulty: text('difficulty', { enum: ['easy', 'normal', 'hard'] }).notNull(),
+  difficulty: text('difficulty', { enum: ['easy', 'normal', 'hard', 'expert'] }).notNull(),
   questionsAnswered: integer('questions_answered').notNull().default(0),
   questionsCorrect: integer('questions_correct').notNull().default(0),
   pointsEarned: integer('points_earned').notNull().default(0),
@@ -55,4 +56,14 @@ export const userAnswers = sqliteTable('user_answers', {
 export const gameSettings = sqliteTable('game_settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
+});
+
+export const wordleResults = sqliteTable('wordle_results', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  word: text('word').notNull(),
+  won: integer('won', { mode: 'boolean' }).notNull(),
+  guessesUsed: integer('guesses_used').notNull(),
+  pointsAwarded: integer('points_awarded').notNull().default(0),
+  playedAt: text('played_at').notNull(),
 });
