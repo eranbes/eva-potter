@@ -1,26 +1,175 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f172a;
+  --foreground: #fffbeb;
+  --color-gold: #d4a017;
+  --color-gold-light: #f5d060;
+  --color-gold-dark: #996515;
+  --color-parchment: #f5e6c8;
+  --color-parchment-dark: #d4b896;
+  --color-magic-purple: #7c3aed;
+  --color-magic-blue: #3b82f6;
+  --color-hogwarts-green: #065f46;
+  --color-gryffindor: #740001;
+  --color-slytherin: #1a472a;
+  --color-ravenclaw: #0e1a40;
+  --color-hufflepuff: #ecb939;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-heading: var(--font-cinzel);
+  --font-body: var(--font-lora);
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+  --color-gold-dark: var(--color-gold-dark);
+  --color-parchment: var(--color-parchment);
+  --color-parchment-dark: var(--color-parchment-dark);
+  --color-magic-purple: var(--color-magic-purple);
+  --color-magic-blue: var(--color-magic-blue);
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Georgia, serif;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d4a017, #996515);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #f5d060, #d4a017);
+}
+
+/* Parchment texture utility */
+.parchment-bg {
+  background: linear-gradient(135deg, #f5e6c8 0%, #ede0c8 25%, #f0dbb8 50%, #e8d4b0 75%, #f5e6c8 100%);
+  position: relative;
+}
+
+.parchment-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4b896' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Golden text glow */
+.text-glow-gold {
+  text-shadow: 0 0 10px rgba(212, 160, 23, 0.5), 0 0 20px rgba(212, 160, 23, 0.3), 0 0 40px rgba(212, 160, 23, 0.15);
+}
+
+.text-glow-gold-strong {
+  text-shadow: 0 0 10px rgba(245, 208, 96, 0.6), 0 0 20px rgba(245, 208, 96, 0.4), 0 0 40px rgba(245, 208, 96, 0.2), 0 0 60px rgba(212, 160, 23, 0.1);
+}
+
+/* Sparkle animation */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+  66% {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+}
+
+/* Twinkle animation for stars */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Magic shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Magical input styling */
+.magical-input {
+  background: linear-gradient(135deg, rgba(245, 230, 200, 0.1), rgba(245, 230, 200, 0.05));
+  border: 2px solid rgba(212, 160, 23, 0.3);
+  transition: all 0.3s ease;
+}
+
+.magical-input:focus {
+  border-color: rgba(212, 160, 23, 0.7);
+  box-shadow: 0 0 15px rgba(212, 160, 23, 0.2), 0 0 30px rgba(212, 160, 23, 0.1);
+  outline: none;
+}
+
+.magical-input::placeholder {
+  color: rgba(255, 251, 235, 0.4);
 }

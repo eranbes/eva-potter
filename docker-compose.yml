@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - app-data:/app/data
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=/app/data/eva_potter.db
+    command: >
+      sh -c "npm run db:setup 2>/dev/null; npm run dev -- -H 0.0.0.0"
+
+volumes:
+  app-data:
