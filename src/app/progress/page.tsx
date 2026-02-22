@@ -11,7 +11,9 @@ import ParchmentCard from '@/components/ui/ParchmentCard';
 import MagicalButton from '@/components/ui/MagicalButton';
 import ProgressBar from '@/components/ui/ProgressBar';
 import PatronusReveal from '@/components/patronus/PatronusReveal';
+import DragonEggHatch from '@/components/dragons/DragonEggHatch';
 import { getPatronusById, type PatronusAnimal } from '@/lib/patronus/animals';
+import { getDragonById, DRAGON_EGG_COST, type DragonDef } from '@/lib/dragons/definitions';
 
 interface DifficultyProgress {
   questionsAnswered: number;
@@ -55,6 +57,10 @@ export default function ProgressPage() {
   const [error, setError] = useState('');
   const [patronusRevealAnimal, setPatronusRevealAnimal] = useState<PatronusAnimal | null>(null);
   const [patronusLoading, setPatronusLoading] = useState(false);
+  const [dragonHatchAnimal, setDragonHatchAnimal] = useState<DragonDef | null>(null);
+  const [dragonLoading, setDragonLoading] = useState(false);
+  const [userDragons, setUserDragons] = useState<Array<{ dragonType: string; obtainedAt: string }>>([]);
+  const [dragonsLoaded, setDragonsLoaded] = useState(false);
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -67,11 +73,20 @@ export default function ProgressPage() {
 
     const fetchProgress = async () => {
       try {
-        const response = await fetch('/api/progress');
-        if (!response.ok) throw new Error('Failed to fetch progress');
+        const [progressRes, dragonsRes] = await Promise.all([
+          fetch('/api/progress'),
+          fetch('/api/dragons'),
+        ]);
 
-        const data: ProgressResponse = await response.json();
+        if (!progressRes.ok) throw new Error('Failed to fetch progress');
+        const data: ProgressResponse = await progressRes.json();
         setProgress(data);
+
+        if (dragonsRes.ok) {
+          const dragonsData = await dragonsRes.json();
+          setUserDragons(dragonsData.dragons ?? []);
+        }
+        setDragonsLoaded(true);
       } catch {
         setError(t('progress.error'));
       } finally {
@@ -351,6 +366,141 @@ export default function ProgressPage() {
               <PatronusReveal
                 animal={patronusRevealAnimal}
                 onClose={() => setPatronusRevealAnimal(null)}
+              />
+            )}
+
+            {/* Dragon Nursery Section */}
+            {dragonsLoaded && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="mb-10"
+              >
+                <ParchmentCard>
+                  <h3 className="font-[family-name:var(--font-cinzel)] text-lg font-bold text-slate-800 mb-3">
+                    {t('dragons.title')}
+                  </h3>
+
+                  {user.totalPoints < DRAGON_EGG_COST && userDragons.length === 0 ? (
+                    // Locked: not enough points and no dragons yet
+                    <div>
+                      <p className="text-slate-600 mb-2">
+                        {t('dragons.locked')}
+                      </p>
+                      <ProgressBar
+                        current={user.totalPoints}
+                        total={DRAGON_EGG_COST}
+                        className="h-2"
+                      />
+                      <p className="text-slate-500 text-xs mt-1">
+                        {user.totalPoints} / {DRAGON_EGG_COST} points
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Dragon collection grid */}
+                      {userDragons.length > 0 && (
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-slate-600 text-sm font-medium">
+                              {t('dragons.collection')}
+                            </p>
+                            <p className="text-slate-500 text-xs">
+                              {t('dragons.collected', {
+                                count: new Set(userDragons.map((d) => d.dragonType)).size,
+                              })}
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {userDragons.map((ud, idx) => {
+                              const def = getDragonById(ud.dragonType);
+                              if (!def) return null;
+                              const name = language === 'fr' ? def.nameFr : def.nameEn;
+                              const rarityLabel = t(`dragons.rarity.${def.rarity}`);
+                              const dateStr = new Date(ud.obtainedAt).toLocaleDateString(
+                                language === 'fr' ? 'fr-FR' : 'en-US',
+                                { month: 'short', day: 'numeric' }
+                              );
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-3 bg-slate-50 rounded-lg p-2.5 border border-slate-200"
+                                >
+                                  <span className="text-3xl">{def.emoji}</span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-slate-800 font-medium text-sm truncate">{name}</p>
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                                        style={{
+                                          background: `${def.color}22`,
+                                          color: def.color,
+                                        }}
+                                      >
+                                        {rarityLabel}
+                                      </span>
+                                      <span className="text-slate-400 text-xs">{dateStr}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {new Set(userDragons.map((d) => d.dragonType)).size < 3 && (
+                            <p className="text-center text-slate-500 text-xs mt-2">
+                              {t('dragons.collectAll')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Buy egg button */}
+                      <div className="text-center">
+                        {user.totalPoints >= DRAGON_EGG_COST ? (
+                          <MagicalButton
+                            onClick={async () => {
+                              if (dragonLoading) return;
+                              setDragonLoading(true);
+                              try {
+                                const res = await fetch('/api/dragons', { method: 'POST' });
+                                const json = await res.json();
+                                if (res.ok && json.dragon) {
+                                  setDragonHatchAnimal(json.dragon);
+                                  setUserDragons((prev) => [
+                                    ...prev,
+                                    { dragonType: json.dragon.id, obtainedAt: new Date().toISOString() },
+                                  ]);
+                                  await refreshUser();
+                                }
+                              } catch {
+                                // silently fail
+                              } finally {
+                                setDragonLoading(false);
+                              }
+                            }}
+                            disabled={dragonLoading}
+                            size="md"
+                          >
+                            {dragonLoading ? '...' : `🥚 ${t('dragons.buyEgg')} (${t('dragons.cost')})`}
+                          </MagicalButton>
+                        ) : userDragons.length > 0 ? (
+                          <p className="text-slate-500 text-sm">
+                            {t('dragons.notEnoughPoints')} ({user.totalPoints}/{DRAGON_EGG_COST})
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
+                </ParchmentCard>
+              </motion.div>
+            )}
+
+            {/* Dragon Egg Hatch Overlay */}
+            {dragonHatchAnimal && (
+              <DragonEggHatch
+                dragon={dragonHatchAnimal}
+                onClose={() => setDragonHatchAnimal(null)}
               />
             )}
 

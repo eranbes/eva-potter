@@ -103,6 +103,12 @@ export function createTestDb() {
       points_awarded INTEGER NOT NULL DEFAULT 0,
       played_at TEXT NOT NULL
     );
+    CREATE TABLE user_dragons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      dragon_type TEXT NOT NULL,
+      obtained_at TEXT NOT NULL
+    );
     CREATE TABLE snitch_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       status TEXT NOT NULL DEFAULT 'pending',

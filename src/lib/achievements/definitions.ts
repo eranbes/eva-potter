@@ -241,4 +241,12 @@ export const achievements: AchievementDef[] = [
     descFr: 'Attrape 3 Vifs d\u2019Or',
     icon: '\u{1F3C5}',
   },
+  {
+    id: 'dragon_tamer',
+    nameEn: 'Dragon Tamer',
+    nameFr: 'Dresseur de Dragons',
+    descEn: 'Hatch your first dragon egg',
+    descFr: 'Fais éclore ton premier œuf de dragon',
+    icon: '\u{1F409}',
+  },
 ];

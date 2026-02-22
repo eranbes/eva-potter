@@ -223,5 +223,13 @@ export async function checkAchievements(userId: string, database: Database): Pro
 
   if (snitchCatches[0].count >= 3) await unlock('snitch_catcher');
 
+  // --- Dragon tamer: hatch at least one dragon egg ---
+  const dragonCount = await database
+    .select({ count: sql<number>`count(*)` })
+    .from(schema.userDragons)
+    .where(eq(schema.userDragons.userId, userId));
+
+  if (dragonCount[0].count > 0) await unlock('dragon_tamer');
+
   return newlyUnlocked;
 }

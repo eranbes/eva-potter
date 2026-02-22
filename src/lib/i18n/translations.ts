@@ -340,6 +340,26 @@ export const translations: Record<Language, TranslationDictionary> = {
     'achievement.daily_streak_7_desc': 'Complete daily challenges 7 days in a row',
     'achievement.snitch_catcher': 'Seeker',
     'achievement.snitch_catcher_desc': 'Catch 3 Golden Snitches',
+    'achievement.dragon_tamer': 'Dragon Tamer',
+    'achievement.dragon_tamer_desc': 'Hatch your first dragon egg',
+
+    // Dragons
+    'dragons.title': 'Dragon Nursery',
+    'dragons.buyEgg': 'Buy Dragon Egg',
+    'dragons.cost': '5000 points',
+    'dragons.locked': 'Earn 5000 points to buy a dragon egg',
+    'dragons.collection': 'Your Dragons',
+    'dragons.collectAll': 'Collect all 3!',
+    'dragons.collected': '{count}/3 collected',
+    'dragons.obtainedAt': 'Hatched on {date}',
+    'dragons.rarity.common': 'Common',
+    'dragons.rarity.rare': 'Rare',
+    'dragons.rarity.legendary': 'Legendary',
+    'dragons.name.common_welsh_green': 'Common Welsh Green',
+    'dragons.name.swedish_short_snout': 'Swedish Short-Snout',
+    'dragons.name.hungarian_horntail': 'Hungarian Horntail',
+    'dragons.tapToContinue': 'Tap anywhere to continue',
+    'dragons.notEnoughPoints': 'Not enough points',
 
     // Golden Snitch
     'snitch.title': 'GOLDEN SNITCH!',
@@ -690,6 +710,26 @@ export const translations: Record<Language, TranslationDictionary> = {
     'achievement.daily_streak_7_desc': 'Termine les d\u00e9fis du jour 7 jours d\u2019affil\u00e9e',
     'achievement.snitch_catcher': 'Attrapeur',
     'achievement.snitch_catcher_desc': 'Attrape 3 Vifs d\u2019Or',
+    'achievement.dragon_tamer': 'Dresseur de Dragons',
+    'achievement.dragon_tamer_desc': 'Fais éclore ton premier œuf de dragon',
+
+    // Dragons
+    'dragons.title': 'Nurserie de Dragons',
+    'dragons.buyEgg': 'Acheter un œuf de dragon',
+    'dragons.cost': '5000 points',
+    'dragons.locked': 'Gagne 5000 points pour acheter un œuf de dragon',
+    'dragons.collection': 'Tes Dragons',
+    'dragons.collectAll': 'Collectionne les 3\u00a0!',
+    'dragons.collected': '{count}/3 collectionnés',
+    'dragons.obtainedAt': 'Éclos le {date}',
+    'dragons.rarity.common': 'Commun',
+    'dragons.rarity.rare': 'Rare',
+    'dragons.rarity.legendary': 'Légendaire',
+    'dragons.name.common_welsh_green': 'Vert gallois',
+    'dragons.name.swedish_short_snout': 'Suédois à museau court',
+    'dragons.name.hungarian_horntail': 'Magyar à pointes',
+    'dragons.tapToContinue': 'Appuie n\u2019importe où pour continuer',
+    'dragons.notEnoughPoints': 'Pas assez de points',
 
     // Golden Snitch
     'snitch.title': 'VIF D\'OR\u00a0!',

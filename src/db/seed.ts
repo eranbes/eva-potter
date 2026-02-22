@@ -101,6 +101,15 @@ sqlite.exec(`
   );
 `);
 
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS user_dragons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    dragon_type TEXT NOT NULL,
+    obtained_at TEXT NOT NULL
+  );
+`);
+
 // Seed first snitch event if none exists
 const existingSnitch = sqlite.prepare('SELECT COUNT(*) as count FROM snitch_events').get() as { count: number };
 if (existingSnitch.count === 0) {

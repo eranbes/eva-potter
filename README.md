@@ -26,9 +26,10 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 ### Progression
 - **House Sorting Ceremony** — 4 personality questions with a dramatic reveal animation. Determines your Hogwarts house (Gryffindor, Slytherin, Ravenclaw, or Hufflepuff)
 - **Patronus Reveal** — Unlock at 500+ points. Full-screen silvery mist animation reveals one of 20 magical animals
-- **29 Achievements** — Unlock badges for milestones like first quiz, point thresholds, wordle streaks, perfect duels, fast potion brewing, quiz mastery across all difficulties, and more
+- **Dragon Egg Gacha** — Spend 5000 points to buy a dragon egg. It hatches into one of 3 random dragons with weighted rarities: Common Welsh Green (60%), Swedish Short-Snout (30%), or Hungarian Horntail (10%). Full-screen 5-phase hatching animation. Collect all 3!
+- **30 Achievements** — Unlock badges for milestones like first quiz, point thresholds, wordle streaks, perfect duels, fast potion brewing, quiz mastery across all difficulties, dragon taming, and more
 - **Leaderboard** — Players tab + Houses tab showing house standings with total points and member counts
-- **Progress Tracking** — See your stats and journey on the Hogwarts Express
+- **Progress Tracking** — See your stats, dragon collection, and journey on the Hogwarts Express
 - **Points System** — Quiz: 10/20/30/40 by difficulty; Wordle: 60→10 by guesses; Potions/Duel: speed-based
 - **Admin Reset** — Hidden admin page to wipe all user data for a fresh start (e.g. new school year)
 
@@ -109,7 +110,7 @@ Navigate to `/admin/reset` to wipe all user data (users, progress, answers, word
 src/
 ├── app/                  # Next.js routes
 │   ├── admin/reset/      # Admin reset page
-│   ├── api/              # REST API (user, books, quiz, wordle, leaderboard, sorting, achievements, daily, potions, duel, patronus, snitch, admin)
+│   ├── api/              # REST API (user, books, quiz, wordle, leaderboard, sorting, achievements, daily, potions, duel, patronus, dragons, snitch, admin)
 │   ├── achievements/     # Trophy case page
 │   ├── books/            # Book selection → difficulty → quiz → results
 │   ├── daily/            # Daily challenge page (quiz + wordle)
@@ -124,6 +125,7 @@ src/
 │   ├── bookshelf/        # Book display
 │   ├── duel/             # Duel round component with countdown
 │   ├── layout/           # Header (responsive with hamburger menu)
+│   ├── dragons/          # Dragon egg hatching animation
 │   ├── patronus/         # Patronus reveal animation
 │   ├── potions/          # Potion card with flip animation
 │   ├── providers/        # User and Language context
@@ -133,11 +135,12 @@ src/
 │   ├── wordle/           # Wordle game components (board, keyboard, tiles, hints)
 │   └── ui/               # Shared UI components (HouseBadge, MagicalButton, etc.)
 ├── db/
-│   ├── schema.ts         # Drizzle schema (users, books, questions, progress, answers, wordle, achievements, daily, potions, duel, snitch_events)
+│   ├── schema.ts         # Drizzle schema (users, books, questions, progress, answers, wordle, achievements, daily, potions, duel, dragons, snitch_events)
 │   ├── seed.ts           # 560 questions across 7 books × 4 difficulties × 20 each
 │   └── index.ts          # Database client
 └── lib/
-    ├── achievements/     # 29 achievement definitions + checker
+    ├── achievements/     # 30 achievement definitions + checker
+    ├── dragons/          # 3 dragon definitions + weighted random selection
     ├── daily/            # Deterministic daily challenge seeding
     ├── duel/             # 30+ spell/effect pairs (EN/FR)
     ├── i18n/             # EN/FR translations and French question data

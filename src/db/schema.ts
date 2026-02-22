@@ -103,6 +103,13 @@ export const duelResults = sqliteTable('duel_results', {
   playedAt: text('played_at').notNull(),
 });
 
+export const userDragons = sqliteTable('user_dragons', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => users.id),
+  dragonType: text('dragon_type').notNull(),
+  obtainedAt: text('obtained_at').notNull(),
+});
+
 export const snitchEvents = sqliteTable('snitch_events', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   status: text('status', { enum: ['pending', 'active', 'claimed', 'expired'] }).notNull().default('pending'),
