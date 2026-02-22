@@ -249,7 +249,7 @@ export default function ProgressPage() {
                   transition={{ duration: 0.4, delay: 0.3, type: 'spring' }}
                   className="text-2xl sm:text-3xl font-bold text-amber-300 font-[family-name:var(--font-cinzel)]"
                 >
-                  {stats.totalPoints}
+                  {user.totalPoints}
                 </motion.p>
                 <p className="text-amber-200/50 text-sm mt-1">{t('progress.totalPoints')}</p>
               </div>

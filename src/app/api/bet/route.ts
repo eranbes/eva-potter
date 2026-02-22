@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { db, schema } from '@/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { checkAchievements } from '@/lib/achievements/checker';
 
 const COOKIE_NAME = 'eva_potter_user_id';
@@ -59,8 +59,27 @@ export async function POST(request: NextRequest) {
       .set({ totalPoints: newTotal, updatedAt: new Date().toISOString() })
       .where(eq(schema.users.id, userId));
 
-    // Check for new achievements
-    const newAchievements = won ? await checkAchievements(userId, db) : [];
+    // Check for new achievements (goblet win + points-based)
+    const newAchievements: string[] = [];
+    if (won) {
+      // Directly unlock goblet_winner since there's no bet_results table for the checker to query
+      const [existingGoblet] = await db
+        .select()
+        .from(schema.userAchievements)
+        .where(and(eq(schema.userAchievements.userId, userId), eq(schema.userAchievements.achievementId, 'goblet_winner')))
+        .limit(1);
+      if (!existingGoblet) {
+        await db.insert(schema.userAchievements).values({
+          userId,
+          achievementId: 'goblet_winner',
+          unlockedAt: new Date().toISOString(),
+        });
+        newAchievements.push('goblet_winner');
+      }
+      // Also check other achievements (e.g. points milestones)
+      const others = await checkAchievements(userId, db);
+      newAchievements.push(...others);
+    }
 
     return NextResponse.json({
       won,
