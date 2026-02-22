@@ -286,14 +286,14 @@ export default function QuizPlayPage({
         setError(t('quiz.noQuestions'));
         return;
       }
-      const firstUnanswered = allQuestions.findIndex((q) => !q.alreadyAnswered);
-      const startIndex = firstUnanswered === -1 ? allQuestions.length : firstUnanswered;
-      setQuestions(allQuestions);
-      if (startIndex >= allQuestions.length) {
+      // Filter to only unanswered questions so returning users see just the new ones
+      const unanswered = allQuestions.filter((q) => !q.alreadyAnswered);
+      if (unanswered.length === 0) {
         router.replace(`/books/${bookSlug}`);
         return;
       }
-      setCurrentIndex(startIndex);
+      setQuestions(unanswered);
+      setCurrentIndex(0);
       setQuizState('playing');
     } catch (err) {
       setError(
@@ -373,10 +373,7 @@ export default function QuizPlayPage({
 
   // The actual advance logic (called directly or after goblet dismissal)
   const advanceToNext = useCallback(() => {
-    let idx = currentIndex + 1;
-    while (idx < questions.length && questions[idx].alreadyAnswered) {
-      idx++;
-    }
+    const idx = currentIndex + 1;
 
     if (idx >= questions.length) {
       // Quiz done — navigate to results
@@ -412,13 +409,9 @@ export default function QuizPlayPage({
     advanceToNext();
   };
 
-  // Is the current question the last unanswered one?
+  // Is the current question the last one?
   const isLastQuestion = () => {
-    let idx = currentIndex + 1;
-    while (idx < questions.length && questions[idx].alreadyAnswered) {
-      idx++;
-    }
-    return idx >= questions.length;
+    return currentIndex + 1 >= questions.length;
   };
 
   // --- Render ---
