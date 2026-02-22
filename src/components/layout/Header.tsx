@@ -151,7 +151,7 @@ export default function Header({ className = '' }: HeaderProps) {
               ))}
             </nav>
 
-            <LanguageToggle className="hidden sm:inline-flex" />
+            <LanguageToggle className="hidden md:inline-flex" />
 
             {/* Mobile hamburger */}
             <button
@@ -193,7 +193,7 @@ export default function Header({ className = '' }: HeaderProps) {
             ))}
             {/* Language toggle in the grid on mobile */}
             <div className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl bg-yellow-500/5">
-              <LanguageToggle className="sm:hidden !px-2 !py-1 !text-xs" />
+              <LanguageToggle className="md:hidden !px-2 !py-1 !text-xs" />
             </div>
           </nav>
         </div>
