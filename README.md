@@ -26,7 +26,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 ### Progression
 - **House Sorting Ceremony** — 4 personality questions with a dramatic reveal animation. Determines your Hogwarts house (Gryffindor, Slytherin, Ravenclaw, or Hufflepuff)
 - **Patronus Reveal** — Unlock at 500+ points. Full-screen silvery mist animation reveals one of 20 magical animals
-- **19 Achievements** — Unlock badges for milestones like first quiz, point thresholds, wordle streaks, perfect duels, fast potion brewing, and more
+- **29 Achievements** — Unlock badges for milestones like first quiz, point thresholds, wordle streaks, perfect duels, fast potion brewing, quiz mastery across all difficulties, and more
 - **Leaderboard** — Players tab + Houses tab showing house standings with total points and member counts
 - **Progress Tracking** — See your stats and journey on the Hogwarts Express
 - **Points System** — Quiz: 10/20/30/40 by difficulty; Wordle: 60→10 by guesses; Potions/Duel: speed-based
@@ -137,7 +137,7 @@ src/
 │   ├── seed.ts           # 560 questions across 7 books × 4 difficulties × 20 each
 │   └── index.ts          # Database client
 └── lib/
-    ├── achievements/     # 19 achievement definitions + checker
+    ├── achievements/     # 29 achievement definitions + checker
     ├── daily/            # Deterministic daily challenge seeding
     ├── duel/             # 30+ spell/effect pairs (EN/FR)
     ├── i18n/             # EN/FR translations and French question data
