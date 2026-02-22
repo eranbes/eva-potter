@@ -10,6 +10,7 @@ import Header from '@/components/layout/Header';
 import ParchmentCard from '@/components/ui/ParchmentCard';
 
 interface LeaderboardEntry {
+  id: string;
   rank: number;
   firstName: string;
   totalPoints: number;
@@ -296,8 +297,9 @@ export default function LeaderboardPage() {
                     </span>
 
                     {/* Name */}
-                    <span
-                      className={`flex-1 font-medium text-base ${
+                    <Link
+                      href={`/player/${entry.id}`}
+                      className={`flex-1 font-medium text-base hover:text-amber-600 transition-colors ${
                         entry.isCurrentUser
                           ? 'text-amber-800 font-bold'
                           : 'text-slate-700'
@@ -307,7 +309,7 @@ export default function LeaderboardPage() {
                       {entry.isCurrentUser && (
                         <span className="text-amber-600 text-sm ml-2">{t('leaderboard.you')}</span>
                       )}
-                    </span>
+                    </Link>
 
                     {/* Points */}
                     <div className="flex items-center gap-1.5">
@@ -346,10 +348,13 @@ export default function LeaderboardPage() {
                       <span className="w-10 text-center font-bold text-lg font-[family-name:var(--font-cinzel)] text-slate-500">
                         #{appendedUser.rank}
                       </span>
-                      <span className="flex-1 font-bold text-base text-amber-800">
+                      <Link
+                        href={`/player/${appendedUser.id}`}
+                        className="flex-1 font-bold text-base text-amber-800 hover:text-amber-600 transition-colors"
+                      >
                         {appendedUser.firstName}
                         <span className="text-amber-600 text-sm ml-2">{t('leaderboard.you')}</span>
-                      </span>
+                      </Link>
                       <div className="flex items-center gap-1.5">
                         <svg
                           className="w-4 h-4 text-amber-500"

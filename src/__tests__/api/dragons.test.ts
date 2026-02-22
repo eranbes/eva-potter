@@ -124,7 +124,8 @@ describe('POST /api/dragons', () => {
     seedUser(db, 'u1', 'Harry', 5000);
     const res = await POST();
     const data = await res.json();
-    const validTypes = ['common_welsh_green', 'swedish_short_snout', 'hungarian_horntail'];
+    const { dragons: allDragons } = await import('@/lib/dragons/definitions');
+    const validTypes = allDragons.map((d) => d.id);
     expect(validTypes).toContain(data.dragon.id);
   });
 
@@ -163,9 +164,9 @@ describe('POST /api/dragons', () => {
 });
 
 describe('dragon definitions', () => {
-  it('has 3 dragons', async () => {
+  it('has 8 dragons', async () => {
     const { dragons } = await import('@/lib/dragons/definitions');
-    expect(dragons).toHaveLength(3);
+    expect(dragons).toHaveLength(8);
   });
 
   it('weights sum to 100', async () => {

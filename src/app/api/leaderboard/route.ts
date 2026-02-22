@@ -41,6 +41,7 @@ export async function GET() {
       .limit(50);
 
     const leaderboard = topUsers.map((u, index) => ({
+      id: u.id,
       rank: index + 1,
       firstName: u.firstName,
       totalPoints: u.totalPoints,
@@ -61,6 +62,7 @@ export async function GET() {
         );
 
       leaderboard.push({
+        id: currentUser.id,
         rank: count + 1,
         firstName: currentUser.firstName,
         totalPoints: currentUser.totalPoints,

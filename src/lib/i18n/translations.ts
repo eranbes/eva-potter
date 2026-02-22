@@ -349,8 +349,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     'dragons.cost': '5000 points',
     'dragons.locked': 'Earn 5000 points to buy a dragon egg',
     'dragons.collection': 'Your Dragons',
-    'dragons.collectAll': 'Collect all 3!',
-    'dragons.collected': '{count}/3 collected',
+    'dragons.collectAll': 'Collect all 8!',
+    'dragons.collected': '{count}/8 collected',
     'dragons.obtainedAt': 'Hatched on {date}',
     'dragons.rarity.common': 'Common',
     'dragons.rarity.rare': 'Rare',
@@ -358,6 +358,11 @@ export const translations: Record<Language, TranslationDictionary> = {
     'dragons.name.common_welsh_green': 'Common Welsh Green',
     'dragons.name.swedish_short_snout': 'Swedish Short-Snout',
     'dragons.name.hungarian_horntail': 'Hungarian Horntail',
+    'dragons.name.chinese_fireball': 'Chinese Fireball',
+    'dragons.name.norwegian_ridgeback': 'Norwegian Ridgeback',
+    'dragons.name.antipodean_opaleye': 'Antipodean Opaleye',
+    'dragons.name.peruvian_vipertooth': 'Peruvian Vipertooth',
+    'dragons.name.romanian_longhorn': 'Romanian Longhorn',
     'dragons.tapToContinue': 'Tap anywhere to continue',
     'dragons.notEnoughPoints': 'Not enough points',
 
@@ -371,6 +376,16 @@ export const translations: Record<Language, TranslationDictionary> = {
     'snitch.tooLate': 'Too late!',
     'snitch.caughtBy': '{name} caught the Snitch!',
     'snitch.dismissing': 'Closing in 5 seconds...',
+
+    // Player Profile
+    'profile.title': 'Wizard Profile',
+    'profile.backToLeaderboard': 'Back to Leaderboard',
+    'profile.memberSince': 'Member since {date}',
+    'profile.notRevealed': 'Not yet revealed',
+    'profile.achievements': 'Achievements',
+    'profile.achievementsCount': '{count}/{total} unlocked',
+    'profile.notFound': 'Wizard not found!',
+    'profile.loading': 'Summoning wizard...',
 
     // Maintenance
     'maintenance.banner': 'A new magical update is arriving at Hogwarts!',
@@ -724,8 +739,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     'dragons.cost': '5000 points',
     'dragons.locked': 'Gagne 5000 points pour acheter un œuf de dragon',
     'dragons.collection': 'Tes Dragons',
-    'dragons.collectAll': 'Collectionne les 3\u00a0!',
-    'dragons.collected': '{count}/3 collectionnés',
+    'dragons.collectAll': 'Collectionne les 8\u00a0!',
+    'dragons.collected': '{count}/8 collectionnés',
     'dragons.obtainedAt': 'Éclos le {date}',
     'dragons.rarity.common': 'Commun',
     'dragons.rarity.rare': 'Rare',
@@ -733,6 +748,11 @@ export const translations: Record<Language, TranslationDictionary> = {
     'dragons.name.common_welsh_green': 'Vert gallois',
     'dragons.name.swedish_short_snout': 'Suédois à museau court',
     'dragons.name.hungarian_horntail': 'Magyar à pointes',
+    'dragons.name.chinese_fireball': 'Boutefeu chinois',
+    'dragons.name.norwegian_ridgeback': 'Norvégien à crête',
+    'dragons.name.antipodean_opaleye': 'Opalœil des antipodes',
+    'dragons.name.peruvian_vipertooth': 'Dent-de-vipère du Pérou',
+    'dragons.name.romanian_longhorn': 'Cornelongue roumain',
     'dragons.tapToContinue': 'Appuie n\u2019importe où pour continuer',
     'dragons.notEnoughPoints': 'Pas assez de points',
 
@@ -746,6 +766,16 @@ export const translations: Record<Language, TranslationDictionary> = {
     'snitch.tooLate': 'Trop tard\u00a0!',
     'snitch.caughtBy': '{name} a attrap\u00e9 le Vif d\'Or\u00a0!',
     'snitch.dismissing': 'Fermeture dans 5 secondes...',
+
+    // Player Profile
+    'profile.title': 'Profil du Sorcier',
+    'profile.backToLeaderboard': 'Retour au Classement',
+    'profile.memberSince': 'Membre depuis {date}',
+    'profile.notRevealed': 'Pas encore r\u00e9v\u00e9l\u00e9',
+    'profile.achievements': 'Troph\u00e9es',
+    'profile.achievementsCount': '{count}/{total} d\u00e9bloqu\u00e9s',
+    'profile.notFound': 'Sorcier introuvable\u00a0!',
+    'profile.loading': 'Invocation du sorcier...',
 
     // Maintenance
     'maintenance.banner': 'Une nouvelle mise \u00e0 jour magique arrive \u00e0 Poudlard\u00a0!',
