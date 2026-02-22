@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { db, schema } from '@/db';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { questionsFr } from '@/lib/i18n/questions-fr';
 import { booksFr } from '@/lib/i18n/books-fr';
 import { checkAchievements } from '@/lib/achievements/checker';
@@ -177,6 +177,18 @@ export async function POST(request: NextRequest) {
         pointsAwarded,
       });
 
+      // Count total questions for this book/difficulty
+      const [totalResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(schema.questions)
+        .where(
+          and(
+            eq(schema.questions.bookId, question.bookId),
+            eq(schema.questions.difficulty, question.difficulty)
+          )
+        );
+      const totalQuestions = totalResult.count;
+
       // Upsert userProgress
       const [progress] = await db
         .select()
@@ -193,7 +205,7 @@ export async function POST(request: NextRequest) {
         const newAnswered = progress.questionsAnswered + 1;
         const newCorrect = progress.questionsCorrect + (isCorrect ? 1 : 0);
         const newPoints = progress.pointsEarned + pointsAwarded;
-        const completed = newAnswered >= 10;
+        const completed = newAnswered >= totalQuestions;
 
         await db
           .update(schema.userProgress)
@@ -205,7 +217,6 @@ export async function POST(request: NextRequest) {
           })
           .where(eq(schema.userProgress.id, progress.id));
       } else {
-        const completed = 1 >= 10; // false for first question
         await db.insert(schema.userProgress).values({
           userId,
           bookId: question.bookId,
@@ -213,7 +224,7 @@ export async function POST(request: NextRequest) {
           questionsAnswered: 1,
           questionsCorrect: isCorrect ? 1 : 0,
           pointsEarned: pointsAwarded,
-          completed,
+          completed: 1 >= totalQuestions,
         });
       }
 

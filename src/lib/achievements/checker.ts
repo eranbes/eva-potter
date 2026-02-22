@@ -52,7 +52,7 @@ export async function checkAchievements(userId: string, database: Database): Pro
 
   if (quizAnswers[0].count > 0) await unlock('first_quiz');
 
-  // Perfect quiz (10/10)
+  // Perfect quiz (all correct)
   const perfectQuizzes = await database
     .select({
       bookId: schema.userProgress.bookId,
@@ -65,7 +65,7 @@ export async function checkAchievements(userId: string, database: Database): Pro
     .where(eq(schema.userProgress.userId, userId));
 
   const hasPerfect = perfectQuizzes.some(
-    (p) => p.completed && p.questionsCorrect >= 10 && p.questionsAnswered >= 10
+    (p) => p.completed && p.questionsCorrect === p.questionsAnswered && p.questionsAnswered > 0
   );
   if (hasPerfect) await unlock('perfect_quiz');
 

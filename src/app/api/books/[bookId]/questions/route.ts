@@ -87,7 +87,7 @@ export async function GET(
           )
         );
 
-      if (!hardProgress || !hardProgress.completed) {
+      if (!hardProgress || hardProgress.questionsAnswered < 10) {
         return NextResponse.json(
           { error: 'You must complete the N.E.W.T.s (hard) difficulty first to unlock expert.' },
           { status: 403 }
@@ -105,8 +105,7 @@ export async function GET(
           eq(schema.questions.difficulty, difficulty as 'easy' | 'normal' | 'hard' | 'expert')
         )
       )
-      .orderBy(schema.questions.sortOrder)
-      .limit(10);
+      .orderBy(schema.questions.sortOrder);
 
     if (questionRows.length === 0) {
       return NextResponse.json({ questions: [] });

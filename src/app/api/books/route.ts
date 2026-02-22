@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { db, schema } from '@/db';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { booksFr } from '@/lib/i18n/books-fr';
 
 const COOKIE_NAME = 'eva_potter_user_id';
@@ -43,15 +43,43 @@ export async function GET() {
 
     const difficulties = ['easy', 'normal', 'hard', 'expert'] as const;
 
+    // Count questions per book/difficulty
+    const questionCounts = await db
+      .select({
+        bookId: schema.questions.bookId,
+        difficulty: schema.questions.difficulty,
+        count: sql<number>`count(*)`,
+      })
+      .from(schema.questions)
+      .groupBy(schema.questions.bookId, schema.questions.difficulty);
+
+    const countMap = new Map<string, number>();
+    for (const row of questionCounts) {
+      countMap.set(`${row.bookId}-${row.difficulty}`, row.count);
+    }
+
     const books = allBooks.map((book) => {
       const unlocked = user.totalPoints >= book.pointsToUnlock;
 
-      const progress: Record<string, typeof allProgress[number] | null> = {};
+      const progress: Record<string, {
+        questionsAnswered: number;
+        questionsCorrect: number;
+        pointsEarned: number;
+        completed: boolean;
+        totalQuestions: number;
+      } | null> = {};
       for (const diff of difficulties) {
         const found = allProgress.find(
           (p) => p.bookId === book.id && p.difficulty === diff
         );
-        progress[diff] = found || null;
+        const total = countMap.get(`${book.id}-${diff}`) ?? 0;
+        progress[diff] = found ? {
+          questionsAnswered: found.questionsAnswered,
+          questionsCorrect: found.questionsCorrect,
+          pointsEarned: found.pointsEarned,
+          completed: found.questionsAnswered >= total,
+          totalQuestions: total,
+        } : null;
       }
 
       let title = book.title;

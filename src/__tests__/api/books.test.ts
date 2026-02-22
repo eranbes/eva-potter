@@ -91,7 +91,7 @@ describe('GET /api/books/[bookId]/questions', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 10 questions without correct answers', async () => {
+  it('returns all questions for a difficulty without correct answers', async () => {
     seedUser(db, 'user-1', 'Harry');
     const res = await GET(
       makeRequest('1', 'easy') as any,
@@ -99,10 +99,80 @@ describe('GET /api/books/[bookId]/questions', () => {
     );
     const body = await res.json();
 
+    // Test DB seeds 10 easy questions for book 1
     expect(body.questions).toHaveLength(10);
     // Should NOT expose correctOption
     expect(body.questions[0]).not.toHaveProperty('correctOption');
     expect(body.questions[0]).toHaveProperty('questionText');
     expect(body.questions[0]).toHaveProperty('optionA');
+  });
+
+  it('returns more than 10 questions when available', async () => {
+    seedUser(db, 'user-1', 'Harry');
+
+    // Add 5 extra easy questions to book 1
+    for (let i = 11; i <= 15; i++) {
+      db.insert(schema.questions).values({
+        bookId: 1,
+        difficulty: 'easy',
+        questionText: `Extra Q${i}?`,
+        optionA: 'A',
+        optionB: 'B',
+        optionC: 'C',
+        optionD: 'D',
+        correctOption: 'A',
+        explanation: `Extra explanation ${i}`,
+        sortOrder: i,
+      }).run();
+    }
+
+    const res = await GET(
+      makeRequest('1', 'easy') as any,
+      { params: Promise.resolve({ bookId: '1' }) }
+    );
+    const body = await res.json();
+
+    expect(body.questions).toHaveLength(15);
+  });
+
+  it('unlocks expert when user has answered 10+ hard questions', async () => {
+    seedUser(db, 'user-1', 'Harry');
+
+    // User has answered 10 hard questions (completed original set)
+    db.insert(schema.userProgress).values({
+      userId: 'user-1',
+      bookId: 1,
+      difficulty: 'hard',
+      questionsAnswered: 10,
+      questionsCorrect: 8,
+      pointsEarned: 240,
+      completed: false, // not completed (more questions exist) but still unlocks expert
+    }).run();
+
+    const res = await GET(
+      makeRequest('1', 'expert') as any,
+      { params: Promise.resolve({ bookId: '1' }) }
+    );
+    expect(res.status).toBe(200);
+  });
+
+  it('blocks expert when user has fewer than 10 hard answers', async () => {
+    seedUser(db, 'user-1', 'Harry');
+
+    db.insert(schema.userProgress).values({
+      userId: 'user-1',
+      bookId: 1,
+      difficulty: 'hard',
+      questionsAnswered: 5,
+      questionsCorrect: 4,
+      pointsEarned: 120,
+      completed: false,
+    }).run();
+
+    const res = await GET(
+      makeRequest('1', 'expert') as any,
+      { params: Promise.resolve({ bookId: '1' }) }
+    );
+    expect(res.status).toBe(403);
   });
 });

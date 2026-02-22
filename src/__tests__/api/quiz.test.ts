@@ -130,9 +130,10 @@ describe('POST /api/quiz/answer', () => {
     expect(progress.completed).toBe(false);
   });
 
-  it('marks quiz completed after 10 answers', async () => {
+  it('marks quiz completed after all questions answered', async () => {
     seedUser(db, 'user-1', 'Harry');
 
+    // Test DB has 10 easy questions for book 1
     for (let i = 1; i <= 10; i++) {
       await POST(postRequest({ questionId: i, selectedOption: 'A' }) as any);
     }
@@ -150,6 +151,46 @@ describe('POST /api/quiz/answer', () => {
 
     expect(progress.completed).toBe(true);
     expect(progress.pointsEarned).toBe(100);
+  });
+
+  it('does not mark completed when more questions exist', async () => {
+    seedUser(db, 'user-1', 'Harry');
+
+    // Add 10 extra easy questions to book 1 (total: 20)
+    for (let i = 11; i <= 20; i++) {
+      db.insert(schema.questions).values({
+        bookId: 1,
+        difficulty: 'easy',
+        questionText: `Extra Q${i}?`,
+        optionA: 'A answer',
+        optionB: 'B answer',
+        optionC: 'C answer',
+        optionD: 'D answer',
+        correctOption: 'A',
+        explanation: `Extra explanation ${i}`,
+        sortOrder: i,
+      }).run();
+    }
+
+    // Answer the original 10
+    for (let i = 1; i <= 10; i++) {
+      await POST(postRequest({ questionId: i, selectedOption: 'A' }) as any);
+    }
+
+    const [progress] = await db
+      .select()
+      .from(schema.userProgress)
+      .where(
+        and(
+          eq(schema.userProgress.userId, 'user-1'),
+          eq(schema.userProgress.bookId, 1),
+          eq(schema.userProgress.difficulty, 'easy')
+        )
+      );
+
+    // 10/20 answered — not completed
+    expect(progress.completed).toBe(false);
+    expect(progress.questionsAnswered).toBe(10);
   });
 
   it('awards 20 points for correct normal-difficulty answer', async () => {

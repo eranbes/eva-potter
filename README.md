@@ -9,7 +9,8 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 ### Core
 - **All 7 Books** — Questions spanning the entire Harry Potter series
 - **4 Difficulty Levels** — First-Years (easy), O.W.L.s (normal), N.E.W.T.s (hard), and Order of the Phoenix (expert)
-- **280 Questions** — 10 per book per difficulty, with explanations
+- **560 Questions** — 20 per book per difficulty, with explanations
+- **Randomized Answer Order** — Options are shuffled per question so memorizing positions doesn't help
 - **Bilingual** — Full English and French support (questions, UI, everything)
 - **Name + PIN Login** — Kids pick a 4-digit PIN to save and resume progress across sessions
 - **Progressive Unlocking** — Earn points to unlock the next book
@@ -17,7 +18,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 ### Mini-Games
 - **Magical Words (Wordle)** — Guess HP words (characters, spells, creatures, places, objects, potions) in up to 6 attempts with color feedback. 120 curated words, variable length (4-8 letters)
 - **Potions Class** — 4x4 memory card matching game with magical ingredients. Points scale by speed: <30s = 80pts, <60s = 60pts, <90s = 40pts, <120s = 20pts, else 10pts
-- **Spell Duel** — 5 rounds of spell identification with a 5-second timer per round. Points scale by reaction time: <1s = 30pts, <2s = 25pts, <3s = 20pts, <5s = 15pts. Max 150pts per duel
+- **Spell Duel** — 5 rounds of spell identification with a 5-second timer per round. Points scale by reaction time: <1s = 30pts, <2s = 25pts, <3s = 20pts, <5s = 15pts. Max 150pts per duel. Protected against rapid-click exploits (ref-based guard, server-side point capping, 30s cooldown)
 - **Daily Challenge** — One quiz question + one wordle word per day with 2x point bonus. Changes every day, can only be completed once
 - **Goblet of Fortune** — Rare (~5%) luck-based mini-game between questions: bet points, pick a flame, win 3x or lose your bet
 
@@ -49,7 +50,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 # Install dependencies
 npm install
 
-# Set up the database (migrate + seed 280 questions)
+# Set up the database (migrate + seed 560 questions)
 npm run db:setup
 
 # Start the dev server
@@ -131,7 +132,7 @@ src/
 │   └── ui/               # Shared UI components (HouseBadge, MagicalButton, etc.)
 ├── db/
 │   ├── schema.ts         # Drizzle schema (users, books, questions, progress, answers, wordle, achievements, daily, potions, duel)
-│   ├── seed.ts           # 280 questions across 7 books × 4 difficulties
+│   ├── seed.ts           # 560 questions across 7 books × 4 difficulties × 20 each
 │   └── index.ts          # Database client
 └── lib/
     ├── achievements/     # 19 achievement definitions + checker

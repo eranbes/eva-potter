@@ -15,6 +15,7 @@ interface BookProgress {
   questionsCorrect: number;
   pointsEarned: number;
   completed: boolean;
+  totalQuestions: number;
 }
 
 interface Book {
@@ -266,7 +267,7 @@ export default function BookDifficultyPage({
                 const questionsAnswered = progress?.questionsAnswered ?? 0;
                 const hasProgress = questionsAnswered > 0;
                 const isConfirming = confirmingReset === diff.key;
-                const isExpertLocked = diff.key === 'expert' && !book.progress.hard?.completed;
+                const isExpertLocked = diff.key === 'expert' && (book.progress.hard?.questionsAnswered ?? 0) < 10;
 
                 const diffNames: Record<string, string> = {
                   easy: t('difficulty.firstYears'),
@@ -327,7 +328,7 @@ export default function BookDifficultyPage({
                                   {t('status.inProgress')}
                                 </span>
                                 <span className="text-slate-500 text-sm">
-                                  {questionsAnswered}/10
+                                  {questionsAnswered}/{progress?.totalQuestions ?? 20}
                                 </span>
                               </div>
                             ) : (

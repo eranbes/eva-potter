@@ -32,6 +32,7 @@
 }
 
 body {
+  overflow-x: hidden;
   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   color: var(--foreground);
   font-family: var(--font-body), Georgia, serif;

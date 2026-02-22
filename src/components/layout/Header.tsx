@@ -98,14 +98,17 @@ export default function Header({ className = '' }: HeaderProps) {
     >
       {/* Top bar */}
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="text-xl md:text-2xl font-extrabold tracking-wide text-yellow-400 group-hover:text-yellow-300 transition-colors">
+        <Link href="/" className="flex items-center gap-2 group">
+          <span className="hidden sm:inline text-xl md:text-2xl font-extrabold tracking-wide text-yellow-400 group-hover:text-yellow-300 transition-colors">
             {t('header.title')}
+          </span>
+          <span className="sm:hidden text-lg font-extrabold text-yellow-400">
+            ⚡
           </span>
         </Link>
 
         {!loading && user && (
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* User info — always visible */}
             <span className="text-sm font-medium text-purple-200 hidden sm:inline">
               {user.firstName}

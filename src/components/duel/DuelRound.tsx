@@ -27,6 +27,7 @@ export default function DuelRound({ spell, onAnswer, roundNumber, totalRounds, l
   const [correctEffect, setCorrectEffect] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(ROUND_TIME_MS);
   const [answered, setAnswered] = useState(false);
+  const answeredRef = useRef(false);
   const startTimeRef = useRef(Date.now());
   const animFrameRef = useRef<number | null>(null);
 
@@ -37,6 +38,7 @@ export default function DuelRound({ spell, onAnswer, roundNumber, totalRounds, l
     setCorrectEffect(correct);
     setOptions(shuffleArray([correct, ...wrong]));
     setAnswered(false);
+    answeredRef.current = false;
     setTimeRemaining(ROUND_TIME_MS);
     startTimeRef.current = Date.now();
   }, [spell, language]);
@@ -51,6 +53,8 @@ export default function DuelRound({ spell, onAnswer, roundNumber, totalRounds, l
       setTimeRemaining(remaining);
 
       if (remaining <= 0) {
+        if (answeredRef.current) return;
+        answeredRef.current = true;
         setAnswered(true);
         onAnswer(false, ROUND_TIME_MS);
         return;
@@ -69,13 +73,14 @@ export default function DuelRound({ spell, onAnswer, roundNumber, totalRounds, l
 
   const handleAnswer = useCallback(
     (effect: string) => {
-      if (answered) return;
+      if (answeredRef.current) return;
+      answeredRef.current = true;
       setAnswered(true);
       const elapsed = Date.now() - startTimeRef.current;
       const isCorrect = effect === correctEffect;
       onAnswer(isCorrect, elapsed);
     },
-    [answered, correctEffect, onAnswer]
+    [correctEffect, onAnswer]
   );
 
   const barPercent = (timeRemaining / ROUND_TIME_MS) * 100;

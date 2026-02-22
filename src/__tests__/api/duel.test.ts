@@ -43,16 +43,21 @@ describe('POST /api/duel/complete', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 for pointsAwarded > 150', async () => {
+  it('clamps pointsAwarded to max for roundsCorrect', async () => {
     seedUser(db, 'u1', 'Harry', 0);
-    const res = await POST(postRequest({ roundsCorrect: 5, pointsAwarded: 200 }) as any);
-    expect(res.status).toBe(400);
+    const res = await POST(postRequest({ roundsCorrect: 2, pointsAwarded: 200 }) as any);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    // 2 rounds correct * 30 max per round = 60 max
+    expect(data.pointsAwarded).toBe(60);
   });
 
-  it('returns 400 for negative pointsAwarded', async () => {
+  it('clamps negative pointsAwarded to 0', async () => {
     seedUser(db, 'u1', 'Harry', 0);
     const res = await POST(postRequest({ roundsCorrect: 3, pointsAwarded: -10 }) as any);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.pointsAwarded).toBe(0);
   });
 
   it('records duel result and awards points', async () => {

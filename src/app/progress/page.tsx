@@ -18,6 +18,7 @@ interface DifficultyProgress {
   questionsCorrect: number;
   pointsEarned: number;
   completed: boolean;
+  totalQuestions: number;
 }
 
 interface BookProgressData {
@@ -379,8 +380,8 @@ export default function ProgressPage() {
                   let bookAnswered = 0;
                   let bookTotal = 0;
                   for (const diff of ['easy', 'normal', 'hard', 'expert'] as const) {
-                    bookTotal += 10; // 10 questions per difficulty
                     const d = bp.difficulties[diff];
+                    bookTotal += d?.totalQuestions ?? 20;
                     if (d) {
                       bookAnswered += d.questionsAnswered;
                     }
@@ -467,6 +468,7 @@ export default function ProgressPage() {
                                   const answered = d?.questionsAnswered ?? 0;
                                   const correct = d?.questionsCorrect ?? 0;
                                   const completed = d?.completed ?? false;
+                                  const total = d?.totalQuestions ?? 20;
 
                                   return (
                                     <div
@@ -489,7 +491,7 @@ export default function ProgressPage() {
                                               )}`}
                                               style={{
                                                 width: `${
-                                                  (answered / 10) * 100
+                                                  total > 0 ? (answered / total) * 100 : 0
                                                 }%`,
                                               }}
                                             />
@@ -497,10 +499,10 @@ export default function ProgressPage() {
                                           <p className="text-slate-500 text-xs mt-0.5">
                                             {completed ? (
                                               <span className="text-emerald-600">
-                                                {correct}/10
+                                                {correct}/{total}
                                               </span>
                                             ) : (
-                                              `${answered}/10`
+                                              `${answered}/${total}`
                                             )}
                                           </p>
                                         </>

@@ -95,19 +95,23 @@ export async function GET(request: NextRequest) {
       answeredQuestions = answers.map((a) => a.questionId);
     }
 
+    const totalQuestions = questionRows.length;
+
     return NextResponse.json({
       progress: progress
         ? {
             questionsAnswered: progress.questionsAnswered,
             questionsCorrect: progress.questionsCorrect,
             pointsEarned: progress.pointsEarned,
-            completed: progress.completed,
+            completed: progress.questionsAnswered >= totalQuestions,
+            totalQuestions,
           }
         : {
             questionsAnswered: 0,
             questionsCorrect: 0,
             pointsEarned: 0,
             completed: false,
+            totalQuestions,
           },
       answeredQuestions,
     });

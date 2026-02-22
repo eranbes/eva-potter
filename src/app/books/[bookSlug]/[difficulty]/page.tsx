@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, use } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -88,6 +88,18 @@ function ActiveQuestion({
   const [showSparkle, setShowSparkle] = useState(false);
   const phase: 'picking' | 'feedback' = answerResult ? 'feedback' : 'picking';
 
+  // Shuffle answer display order per question (seeded by question id for stability)
+  const shuffledOptions = useMemo(() => {
+    const opts: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D'];
+    let seed = question.id * 2654435761;
+    for (let i = opts.length - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+      const j = (seed >>> 0) % (i + 1);
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return opts;
+  }, [question.id]);
+
   const handleSubmit = async () => {
     if (!selectedOption || isSubmitting) return;
     setIsSubmitting(true);
@@ -120,25 +132,26 @@ function ActiveQuestion({
           </div>
         )}
 
-        {(['A', 'B', 'C', 'D'] as const).map((option) => {
+        {shuffledOptions.map((originalOption, index) => {
+          const displayLabel = (['A', 'B', 'C', 'D'] as const)[index];
           const optionText =
-            option === 'A'
+            originalOption === 'A'
               ? question.optionA
-              : option === 'B'
+              : originalOption === 'B'
               ? question.optionB
-              : option === 'C'
+              : originalOption === 'C'
               ? question.optionC
               : question.optionD;
 
-          const isSelected = selectedOption === option;
+          const isSelected = selectedOption === originalOption;
           const showResult = phase === 'feedback' && answerResult;
-          const isCorrect = showResult && option === answerResult.correctOption;
+          const isCorrect = showResult && originalOption === answerResult.correctOption;
           const isWrong = showResult && isSelected && !answerResult.correct;
 
           return (
             <AnswerOption
-              key={option}
-              option={option}
+              key={originalOption}
+              option={displayLabel}
               text={optionText}
               selected={isSelected}
               correct={showResult ? isCorrect || false : undefined}
@@ -146,7 +159,7 @@ function ActiveQuestion({
               disabled={phase === 'feedback' || isSubmitting}
               onClick={() => {
                 if (phase === 'picking' && !isSubmitting) {
-                  setSelectedOption(option);
+                  setSelectedOption(originalOption);
                 }
               }}
             />

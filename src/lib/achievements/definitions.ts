@@ -116,8 +116,8 @@ export const achievements: AchievementDef[] = [
     id: 'perfect_quiz',
     nameEn: 'Outstanding O.W.L.',
     nameFr: 'B.U.S.E. Optimal',
-    descEn: 'Get 10/10 on a quiz',
-    descFr: 'Obtiens 10/10 \u00e0 un quiz',
+    descEn: 'Get a perfect score on a quiz',
+    descFr: 'Obtiens un score parfait \u00e0 un quiz',
     icon: '\u{1F4A0}',
   },
   {

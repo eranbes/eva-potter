@@ -132,6 +132,26 @@ describe('checkAchievements', () => {
     const newIds = await checkAchievements('u1', db);
     expect(newIds).toContain('speed_demon_duel');
   });
+
+  it('unlocks perfect_quiz when all answers are correct', async () => {
+    seedUser(db, 'u1', 'Harry', 100);
+    db.insert(schema.userProgress).values({
+      userId: 'u1', bookId: 1, difficulty: 'easy',
+      questionsAnswered: 10, questionsCorrect: 10, pointsEarned: 100, completed: true,
+    }).run();
+    const newIds = await checkAchievements('u1', db);
+    expect(newIds).toContain('perfect_quiz');
+  });
+
+  it('does not unlock perfect_quiz when some answers are wrong', async () => {
+    seedUser(db, 'u1', 'Harry', 80);
+    db.insert(schema.userProgress).values({
+      userId: 'u1', bookId: 1, difficulty: 'easy',
+      questionsAnswered: 10, questionsCorrect: 8, pointsEarned: 80, completed: true,
+    }).run();
+    const newIds = await checkAchievements('u1', db);
+    expect(newIds).not.toContain('perfect_quiz');
+  });
 });
 
 describe('GET /api/achievements', () => {

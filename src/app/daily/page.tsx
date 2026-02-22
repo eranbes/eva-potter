@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useUser } from '@/components/providers/UserProvider';
@@ -103,6 +103,19 @@ export default function DailyPage() {
   const activeWord = data?.dailyWord
     ? getWord(data.dailyWord as WordEntry, language)
     : '';
+
+  // Shuffle answer display order for daily quiz (seeded by question id for stability)
+  const shuffledQuizOptions = useMemo(() => {
+    const opts: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D'];
+    if (!data?.dailyQuestion) return opts;
+    let seed = data.dailyQuestion.id * 2654435761;
+    for (let i = opts.length - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+      const j = (seed >>> 0) % (i + 1);
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return opts;
+  }, [data?.dailyQuestion?.id]);
 
   // Quiz submit
   const handleQuizSubmit = async () => {
@@ -323,16 +336,17 @@ export default function DailyPage() {
                     </p>
 
                     <div className="flex flex-col gap-2 mb-4">
-                      {(['A', 'B', 'C', 'D'] as const).map((opt) => {
+                      {shuffledQuizOptions.map((originalOpt, index) => {
+                        const displayLabel = (['A', 'B', 'C', 'D'] as const)[index];
                         const optionText =
-                          opt === 'A' ? data.dailyQuestion!.optionA :
-                          opt === 'B' ? data.dailyQuestion!.optionB :
-                          opt === 'C' ? data.dailyQuestion!.optionC :
+                          originalOpt === 'A' ? data.dailyQuestion!.optionA :
+                          originalOpt === 'B' ? data.dailyQuestion!.optionB :
+                          originalOpt === 'C' ? data.dailyQuestion!.optionC :
                           data.dailyQuestion!.optionD;
 
-                        const isSelected = selectedOption === opt;
+                        const isSelected = selectedOption === originalOpt;
                         const showResult = quizResult !== null;
-                        const isCorrectAnswer = quizResult?.correctOption === opt;
+                        const isCorrectAnswer = quizResult?.correctOption === originalOpt;
 
                         let borderClass = 'border-amber-200/60';
                         if (showResult) {
@@ -344,14 +358,14 @@ export default function DailyPage() {
 
                         return (
                           <button
-                            key={opt}
-                            onClick={() => !quizResult && setSelectedOption(opt)}
+                            key={originalOpt}
+                            onClick={() => !quizResult && setSelectedOption(originalOpt)}
                             disabled={!!quizResult}
                             className={`text-left px-4 py-3 rounded-xl border-2 transition-all ${borderClass} ${
                               !quizResult ? 'hover:border-amber-400 cursor-pointer' : ''
                             }`}
                           >
-                            <span className="font-bold text-slate-600 mr-2">{opt}.</span>
+                            <span className="font-bold text-slate-600 mr-2">{displayLabel}.</span>
                             <span className="text-slate-700">{optionText}</span>
                           </button>
                         );
