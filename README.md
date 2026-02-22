@@ -21,6 +21,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 - **Spell Duel** — 5 rounds of spell identification with a 5-second timer per round. Points scale by reaction time: <1s = 30pts, <2s = 25pts, <3s = 20pts, <5s = 15pts. Max 150pts per duel. Protected against rapid-click exploits (ref-based guard, server-side point capping, 30s cooldown)
 - **Daily Challenge** — One quiz question + one wordle word per day with 2x point bonus. Changes every day, can only be completed once
 - **Goblet of Fortune** — Rare (~5%) luck-based mini-game between questions: bet points, pick a flame, win 3x or lose your bet
+- **Golden Snitch** — A random global event every 2-4 hours. When active, a full-screen animated golden snitch appears for 60 seconds. First player to tap it wins 300-500 points. Atomic server-side claim prevents double-wins
 
 ### Progression
 - **House Sorting Ceremony** — 4 personality questions with a dramatic reveal animation. Determines your Hogwarts house (Gryffindor, Slytherin, Ravenclaw, or Hufflepuff)
@@ -108,7 +109,7 @@ Navigate to `/admin/reset` to wipe all user data (users, progress, answers, word
 src/
 ├── app/                  # Next.js routes
 │   ├── admin/reset/      # Admin reset page
-│   ├── api/              # REST API (user, books, quiz, wordle, leaderboard, sorting, achievements, daily, potions, duel, patronus, admin)
+│   ├── api/              # REST API (user, books, quiz, wordle, leaderboard, sorting, achievements, daily, potions, duel, patronus, snitch, admin)
 │   ├── achievements/     # Trophy case page
 │   ├── books/            # Book selection → difficulty → quiz → results
 │   ├── daily/            # Daily challenge page (quiz + wordle)
@@ -126,12 +127,13 @@ src/
 │   ├── patronus/         # Patronus reveal animation
 │   ├── potions/          # Potion card with flip animation
 │   ├── providers/        # User and Language context
+│   ├── snitch/           # Golden snitch event overlay + polling provider
 │   ├── quiz/             # Quiz flow components
 │   ├── results/          # Score and review
 │   ├── wordle/           # Wordle game components (board, keyboard, tiles, hints)
 │   └── ui/               # Shared UI components (HouseBadge, MagicalButton, etc.)
 ├── db/
-│   ├── schema.ts         # Drizzle schema (users, books, questions, progress, answers, wordle, achievements, daily, potions, duel)
+│   ├── schema.ts         # Drizzle schema (users, books, questions, progress, answers, wordle, achievements, daily, potions, duel, snitch_events)
 │   ├── seed.ts           # 560 questions across 7 books × 4 difficulties × 20 each
 │   └── index.ts          # Database client
 └── lib/

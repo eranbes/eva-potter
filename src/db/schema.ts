@@ -102,3 +102,15 @@ export const duelResults = sqliteTable('duel_results', {
   pointsAwarded: integer('points_awarded').notNull().default(0),
   playedAt: text('played_at').notNull(),
 });
+
+export const snitchEvents = sqliteTable('snitch_events', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  status: text('status', { enum: ['pending', 'active', 'claimed', 'expired'] }).notNull().default('pending'),
+  rewardPoints: integer('reward_points').notNull(),
+  activatesAt: text('activates_at').notNull(),
+  expiresAt: text('expires_at'),
+  claimedByUserId: text('claimed_by_user_id').references(() => users.id),
+  claimedByName: text('claimed_by_name'),
+  claimedAt: text('claimed_at'),
+  createdAt: text('created_at').notNull(),
+});

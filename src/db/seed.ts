@@ -87,6 +87,33 @@ sqlite.exec(`
   );
 `);
 
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS snitch_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    reward_points INTEGER NOT NULL,
+    activates_at TEXT NOT NULL,
+    expires_at TEXT,
+    claimed_by_user_id TEXT REFERENCES users(id),
+    claimed_by_name TEXT,
+    claimed_at TEXT,
+    created_at TEXT NOT NULL
+  );
+`);
+
+// Seed first snitch event if none exists
+const existingSnitch = sqlite.prepare('SELECT COUNT(*) as count FROM snitch_events').get() as { count: number };
+if (existingSnitch.count === 0) {
+  const now = new Date();
+  const hoursFromNow = 2 + Math.random() * 2; // 2-4 hours
+  const activatesAt = new Date(now.getTime() + hoursFromNow * 60 * 60 * 1000);
+  const rewardPoints = 300 + Math.floor(Math.random() * 201); // 300-500
+  sqlite.prepare(
+    'INSERT INTO snitch_events (status, reward_points, activates_at, created_at) VALUES (?, ?, ?, ?)'
+  ).run('pending', rewardPoints, activatesAt.toISOString(), now.toISOString());
+  console.log(`⚡ Seeded first Golden Snitch event (activates at ${activatesAt.toISOString()})`);
+}
+
 // Clear and re-seed content tables only (preserving user data)
 console.log('🔄 Refreshing content tables...');
 sqlite.exec(`DELETE FROM questions`);

@@ -103,6 +103,17 @@ export function createTestDb() {
       points_awarded INTEGER NOT NULL DEFAULT 0,
       played_at TEXT NOT NULL
     );
+    CREATE TABLE snitch_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      reward_points INTEGER NOT NULL,
+      activates_at TEXT NOT NULL,
+      expires_at TEXT,
+      claimed_by_user_id TEXT REFERENCES users(id),
+      claimed_by_name TEXT,
+      claimed_at TEXT,
+      created_at TEXT NOT NULL
+    );
   `);
 
   // Seed game settings

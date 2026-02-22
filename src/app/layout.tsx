@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cinzel, Lora } from 'next/font/google';
 import { UserProvider } from '@/components/providers/UserProvider';
 import { LanguageProvider } from '@/components/providers/LanguageProvider';
+import { SnitchProvider } from '@/components/snitch/SnitchProvider';
 import MagicalBackground from '@/components/layout/MagicalBackground';
 import './globals.css';
 
@@ -44,9 +45,11 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <UserProvider>
-            <MagicalBackground>
-              {children}
-            </MagicalBackground>
+            <SnitchProvider>
+              <MagicalBackground>
+                {children}
+              </MagicalBackground>
+            </SnitchProvider>
           </UserProvider>
         </LanguageProvider>
       </body>

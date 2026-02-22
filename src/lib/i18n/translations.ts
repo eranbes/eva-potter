@@ -320,6 +320,17 @@ export const translations: Record<Language, TranslationDictionary> = {
     'achievement.speed_demon_duel_desc': 'Win a duel with a perfect score',
     'achievement.master_brewer': 'Master Brewer',
     'achievement.master_brewer_desc': 'Complete Potions in under 30 seconds',
+
+    // Golden Snitch
+    'snitch.title': 'GOLDEN SNITCH!',
+    'snitch.tapToCatch': 'Catch the snitch before it escapes!',
+    'snitch.reward': '{points} points up for grabs!',
+    'snitch.caught': 'You caught the Snitch!',
+    'snitch.points': 'points',
+    'snitch.escaped': 'The Snitch escaped!',
+    'snitch.tooLate': 'Too late!',
+    'snitch.caughtBy': '{name} caught the Snitch!',
+    'snitch.dismissing': 'Closing in 5 seconds...',
   },
 
   fr: {
@@ -639,5 +650,16 @@ export const translations: Record<Language, TranslationDictionary> = {
     'achievement.speed_demon_duel_desc': 'Gagne un duel avec un score parfait',
     'achievement.master_brewer': 'Ma\u00eetre Brasseur',
     'achievement.master_brewer_desc': 'Termine les Potions en moins de 30 secondes',
+
+    // Golden Snitch
+    'snitch.title': 'VIF D\'OR\u00a0!',
+    'snitch.tapToCatch': 'Attrape le Vif d\'Or avant qu\'il ne s\'\u00e9chappe\u00a0!',
+    'snitch.reward': '{points} points \u00e0 gagner\u00a0!',
+    'snitch.caught': 'Tu as attrap\u00e9 le Vif d\'Or\u00a0!',
+    'snitch.points': 'points',
+    'snitch.escaped': 'Le Vif d\'Or s\'est \u00e9chapp\u00e9\u00a0!',
+    'snitch.tooLate': 'Trop tard\u00a0!',
+    'snitch.caughtBy': '{name} a attrap\u00e9 le Vif d\'Or\u00a0!',
+    'snitch.dismissing': 'Fermeture dans 5 secondes...',
   },
 };
