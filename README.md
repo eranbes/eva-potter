@@ -26,7 +26,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 ### Progression
 - **House Sorting Ceremony** — 4 personality questions with a dramatic reveal animation. Determines your Hogwarts house (Gryffindor, Slytherin, Ravenclaw, or Hufflepuff)
 - **Patronus Reveal** — Unlock at 500+ points. Full-screen silvery mist animation reveals one of 20 magical animals
-- **Dragon Egg Gacha** — Spend 5000 points to buy a dragon egg. It hatches into one of 3 random dragons with weighted rarities: Common Welsh Green (60%), Swedish Short-Snout (30%), or Hungarian Horntail (10%). Full-screen 5-phase hatching animation. Collect all 3!
+- **Dragon Egg Gacha** — Spend 5000 points to buy a dragon egg. It hatches into one of 8 random dragons with weighted rarities (Common/Rare/Legendary). Full-screen 5-phase hatching animation. Collect all 8!
 - **30 Achievements** — Unlock badges for milestones like first quiz, point thresholds, wordle streaks, perfect duels, fast potion brewing, quiz mastery across all difficulties, dragon taming, and more
 - **Leaderboard** — Players tab + Houses tab showing house standings with total points and member counts
 - **Progress Tracking** — See your stats, dragon collection, and journey on the Hogwarts Express
@@ -165,7 +165,7 @@ src/
 │   └── index.ts          # Database client
 └── lib/
     ├── achievements/     # 30 achievement definitions + checker
-    ├── dragons/          # 3 dragon definitions + weighted random selection
+    ├── dragons/          # 8 dragon definitions + weighted random selection
     ├── daily/            # Deterministic daily challenge seeding
     ├── duel/             # 30+ spell/effect pairs (EN/FR)
     ├── i18n/             # EN/FR translations and French question data

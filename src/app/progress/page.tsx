@@ -13,7 +13,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import PatronusReveal from '@/components/patronus/PatronusReveal';
 import DragonEggHatch from '@/components/dragons/DragonEggHatch';
 import { getPatronusById, type PatronusAnimal } from '@/lib/patronus/animals';
-import { getDragonById, DRAGON_EGG_COST, type DragonDef } from '@/lib/dragons/definitions';
+import { getDragonById, dragons, DRAGON_EGG_COST, type DragonDef } from '@/lib/dragons/definitions';
 
 interface DifficultyProgress {
   questionsAnswered: number;
@@ -447,7 +447,7 @@ export default function ProgressPage() {
                               );
                             })}
                           </div>
-                          {new Set(userDragons.map((d) => d.dragonType)).size < 3 && (
+                          {new Set(userDragons.map((d) => d.dragonType)).size < dragons.length && (
                             <p className="text-center text-slate-500 text-xs mt-2">
                               {t('dragons.collectAll')}
                             </p>
