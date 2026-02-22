@@ -371,6 +371,11 @@ export const translations: Record<Language, TranslationDictionary> = {
     'snitch.tooLate': 'Too late!',
     'snitch.caughtBy': '{name} caught the Snitch!',
     'snitch.dismissing': 'Closing in 5 seconds...',
+
+    // Maintenance
+    'maintenance.banner': 'A new magical update is arriving at Hogwarts!',
+    'maintenance.takeover': 'The castle is being enchanted with new magic!',
+    'maintenance.backSoon': "We'll be back in a moment...",
   },
 
   fr: {
@@ -741,5 +746,10 @@ export const translations: Record<Language, TranslationDictionary> = {
     'snitch.tooLate': 'Trop tard\u00a0!',
     'snitch.caughtBy': '{name} a attrap\u00e9 le Vif d\'Or\u00a0!',
     'snitch.dismissing': 'Fermeture dans 5 secondes...',
+
+    // Maintenance
+    'maintenance.banner': 'Une nouvelle mise \u00e0 jour magique arrive \u00e0 Poudlard\u00a0!',
+    'maintenance.takeover': 'Le ch\u00e2teau re\u00e7oit de nouveaux enchantements\u00a0!',
+    'maintenance.backSoon': 'Nous revenons dans un instant...',
   },
 };

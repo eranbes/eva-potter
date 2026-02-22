@@ -32,6 +32,7 @@ A magical Harry Potter app built for kids. Test your knowledge across all 7 book
 - **Progress Tracking** — See your stats, dragon collection, and journey on the Hogwarts Express
 - **Points System** — Quiz: 10/20/30/40 by difficulty; Wordle: 60→10 by guesses; Potions/Duel: speed-based
 - **Admin Reset** — Hidden admin page to wipe all user data for a fresh start (e.g. new school year)
+- **Maintenance Mode** — Admin-triggered 3-minute countdown banner warns players of an incoming update, then a full-screen takeover blocks the UI until the deploy finishes
 
 | Bookshelf | Quiz | Wordle | Leaderboard |
 |:-:|:-:|:-:|:-:|
@@ -104,6 +105,29 @@ Navigate to `/admin/reset` to wipe all user data (users, progress, answers, word
 - **No link in the UI** — admin navigates directly by URL
 - Useful for starting fresh with a new class of students each school year
 
+## Maintenance Mode
+
+Announce a game update to all active players before deploying. A themed 3-minute countdown banner appears, followed by a full-screen takeover at 0:00 that blocks the UI until the deploy completes and the setting is cleared.
+
+```bash
+# Trigger maintenance (3-minute countdown starts)
+curl -X POST https://eva-potter.appcomrade.com/api/admin/maintenance \
+  -d '{"password":"YOUR_ADMIN_PASSWORD"}' -H 'Content-Type: application/json'
+
+# Cancel maintenance
+curl -X DELETE https://eva-potter.appcomrade.com/api/admin/maintenance \
+  -d '{"password":"YOUR_ADMIN_PASSWORD"}' -H 'Content-Type: application/json'
+
+# Check status (public, no password needed)
+curl https://eva-potter.appcomrade.com/api/admin/maintenance
+```
+
+- Clients poll `/api/admin/maintenance` every 10 seconds
+- **Countdown phase**: Golden banner at top of screen with MM:SS timer
+- **Takeover phase**: Full-screen overlay with magical animation — blocks all interaction
+- After deploy, the `maintenance_at` row is cleared (seed refreshes `game_settings`), and the takeover disappears on next poll
+- Uses the same `ADMIN_PASSWORD` as the reset page
+
 ## Project Structure
 
 ```
@@ -125,6 +149,7 @@ src/
 │   ├── bookshelf/        # Book display
 │   ├── duel/             # Duel round component with countdown
 │   ├── layout/           # Header (responsive with hamburger menu)
+│   ├── maintenance/      # Maintenance countdown banner + takeover overlay
 │   ├── dragons/          # Dragon egg hatching animation
 │   ├── patronus/         # Patronus reveal animation
 │   ├── potions/          # Potion card with flip animation

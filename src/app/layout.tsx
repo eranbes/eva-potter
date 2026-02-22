@@ -3,6 +3,7 @@ import { Cinzel, Lora } from 'next/font/google';
 import { UserProvider } from '@/components/providers/UserProvider';
 import { LanguageProvider } from '@/components/providers/LanguageProvider';
 import { SnitchProvider } from '@/components/snitch/SnitchProvider';
+import { MaintenanceProvider } from '@/components/maintenance/MaintenanceProvider';
 import MagicalBackground from '@/components/layout/MagicalBackground';
 import './globals.css';
 
@@ -46,9 +47,11 @@ export default function RootLayout({
         <LanguageProvider>
           <UserProvider>
             <SnitchProvider>
-              <MagicalBackground>
-                {children}
-              </MagicalBackground>
+              <MaintenanceProvider>
+                <MagicalBackground>
+                  {children}
+                </MagicalBackground>
+              </MaintenanceProvider>
             </SnitchProvider>
           </UserProvider>
         </LanguageProvider>
