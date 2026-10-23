@@ -216,7 +216,7 @@ describe('checkAchievements', () => {
     seedUser(db, 'u1', 'Harry', 300);
     for (let i = 0; i < 3; i++) {
       db.insert(schema.userProgress).values({
-        userId: 'u1', bookId: 1, difficulty: ['easy', 'normal', 'hard'][i],
+        userId: 'u1', bookId: 1, difficulty: (['easy', 'normal', 'hard'] as const)[i],
         questionsAnswered: 10, questionsCorrect: 10, pointsEarned: 100, completed: true,
       }).run();
     }
@@ -228,7 +228,7 @@ describe('checkAchievements', () => {
     seedUser(db, 'u1', 'Harry', 200);
     for (let i = 0; i < 2; i++) {
       db.insert(schema.userProgress).values({
-        userId: 'u1', bookId: 1, difficulty: ['easy', 'normal'][i],
+        userId: 'u1', bookId: 1, difficulty: (['easy', 'normal'] as const)[i],
         questionsAnswered: 10, questionsCorrect: 10, pointsEarned: 100, completed: true,
       }).run();
     }
